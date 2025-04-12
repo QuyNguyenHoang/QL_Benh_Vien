@@ -1,0 +1,109 @@
+﻿@model X.PagedList.PagedList<Report>
+@using X.PagedList.Mvc.Core
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<div class="d-flex flex-column min-vh-100">
+    <div class="flex-grow-1">
+        <h2 class="text-danger text-center my-2">KẾT QUẢ TÌM KIẾM BÁO CÁO</h2>
+        <form action="/searchReport" method="get">
+            <div class="d-flex align-items-center justify-content-center my-5 w-100 gap-2 flex-nowrap">
+                <div class="d-flex align-items-center">
+                    <img src="~/Icons/calendar (1).png" width="24" height="24" alt="Lịch" class="me-2" />
+                    <input type="date" name="date" class="form-control w-auto" />
+                </div>
+                <div class="d-flex align-items-center">
+                    <img src="~/Icons/options.png" width="24" height="24" alt="Lịch" class="me-2" />
+                    <select name="filterType" class="form-select w-auto">
+                        <option value="phong">Phòng</option>
+                        <option value="khoa">Khoa</option>
+                        <option value="ten">Tên</option>
+                        <option value="sodienthoai">Số điện thoại</option>
+                    </select>
+                </div>
+
+                <input type="search" class="form-control w-25 ms-2" placeholder="Tìm kiếm..." name="query" />
+                <button type="submit" class="btn btn-primary d-flex justify-content-center">
+                    Tìm kiếm
+                    <img src="~/Icons/find.png" width="24" height="24" alt="Tìm kiếm" class="ms-2" />
+                </button>
+            </div>
+        </form>
+        <div class="d-flex justify-content-end">
+            <a asp-action="UpdateReports" class="mx-2 my-2" title="Update">
+                <img src="~/Icons/reload.png" alt="reload" width="24" height="24" />
+            </a>
+        </div>
+        <table class="table table-bordered table-responsive table-sm align-middle">
+            <thead class="table-light text-center text-nowrap small">
+                <tr>
+                    <th>Ngày cập nhật</th>
+                    <th>Họ tên</th>
+                    <th>Tổng giờ làm</th>
+                    <th>Tổng giờ làm thêm</th>
+                    <th>Tổng ngày nghỉ bù</th>
+                    <th>Tổng giờ đi trễ</th>
+                    <th>Ghi chú</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="text-center text-nowrap small">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ReportDate</td>
+                        <td>@item.User.FullName</td>
+                        <td>@item.TotalWorkHours</td>
+                        <td>@item.TotalOverTime</td>
+                        <td>@item.TotalCompensatoryDays</td>
+                        <td class="d-flex align-items-center justify-content-center">
+                            <p class="me-1 mb-0">@item.TotalLateHours</p>
+                            <p class="mb-0">Phút</p>
+                        </td>
+                        <td>@item.Notes</td>
+                        <td>
+                            <a asp-action="DetailReports" asp-route-id="@item.UserId">
+                                <img src="~/Icons/more.png" alt="Detail" width="24" height="24" class="me-2" />
+                            </a>
+                            <a asp-action="DeleteReport" asp-route-id="@item.UserId" title="Xoá"
+                               onclick="return confirm('Bạn có chắc muốn xoá thống kê của @item.User.FullName')">
+                                <img src="~/Icons/delete (1).png" width="24" height="24" class="mx-2" />
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer phân trang -->
+    <footer class=" py-3 mt-auto">
+        <div class="container text-center">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    @if (Model.HasPreviousPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber - 1 })">«</a>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= Model.PageCount; i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                        </li>
+                    }
+
+                    @if (Model.HasNextPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber + 1 })">»</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </footer>
+</div>

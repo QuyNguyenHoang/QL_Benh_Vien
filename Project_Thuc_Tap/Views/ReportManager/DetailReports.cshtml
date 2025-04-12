@@ -1,0 +1,43 @@
+﻿@model List<Project_Thuc_Tap.Models.DetailReports>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2 class="text-danger text-center my-4">CHI TIẾT THỐNG KÊ</h2>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-sm align-middle">
+        <thead class="table-light text-center text-nowrap small">
+            <tr>
+                <th>Họ tên</th>
+                <th>Ngày Sinh</th>
+                <th>Phòng</th>
+                <th>Khoa</th>
+                <th>Ngày làm</th>
+                <th>Tổng giờ làm</th>
+                <th>Tổng giờ làm thêm</th>
+                <th>Tổng giờ nghỉ bù</th>
+                <th>Tổng giờ đi trễ</th>
+                <th>Ghi chú</th>
+            </tr>
+        </thead>
+        <tbody class="text-nowrap small text-center">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.BirthDate?.ToString("dd/MM/yyyy")</td>
+                    <td>@item.Room</td>
+                    <td>@item.Department</td>
+                    <td>@item.WorkingDay?.ToString("dd/MM/yyyy")</td>
+                    <td>@item.TotalWorkHours Giờ</td>
+                    <td>@item.TotalOverTime Giờ</td>
+                    <td>@item.TotalCompensatoryLeave Ngày</td>
+                    <td>@item.TotalLate Giờ</td>
+                    <td>@item.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

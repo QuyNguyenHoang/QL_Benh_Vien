@@ -1,0 +1,42 @@
+﻿@model List<Project_Thuc_Tap.Models.TimeKeeping>
+
+@{
+    ViewData["Title"] = "Danh Sách Chấm Công";
+}
+
+<h2 class="text-danger text-center">Danh Sách Chấm Công</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Họ Tên</th>
+            <th>Ngày</th>
+            <th>Giờ Vào</th>
+            <th>Giờ Ra</th>
+            <th>Ghi Chú</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@(item.User != null ? item.User.FullName : "N/A")</td>
+                <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                <td>@(string.IsNullOrEmpty(item.TimeIn) ? "N/A" : item.TimeIn)</td>
+                <td>@(string.IsNullOrEmpty(item.TimeOut) ? "N/A" : item.TimeOut)</td>
+                <td>@item.Description</td>
+                <td>
+                    <a asp-action="EditTimeKeeping" asp-route-id="@item.TimeKeepingId" class="me-2" title="Chỉnh sửa">
+                        <img src="~/Icons/edit (1).png" alt="Edit" width="24" height="24" style="vertical-align: middle;" />
+                    </a>
+
+                    <!-- Nút xóa -->
+                    <a asp-action="DeleteTimeKeeping" asp-route-id="@item.TimeKeepingId" class="text-danger" title="Xóa"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa chấm công này không?');">
+                        <img src="~/Icons/delete (1).png" alt="Delete" width="24" height="24" style="vertical-align: middle;" />
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,70 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@model IEnumerable<Project_Thuc_Tap.Models.DutySchedule>
+@{
+    Layout = "~/Views/Shared/_LayoutForUser.cshtml";
+}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="#">Quản lý lịch trực</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="~/DutyScheduleForUser/DutySchedule4User">Lịch trực</a></li>
+                <li class="nav-item"><a class="nav-link" href="~/TimeKeepingForUser/TimeKeeping4User">Chấm công</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Cài đặt</a></li>
+            </ul>
+            <partial name="_LoginPartial" />
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-md-4 text-center">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var user = await UserManager.GetUserAsync(User);
+                <img src="@(string.IsNullOrEmpty(user.Picture) ? "/Images/avatar-default.png" : $"/Images/{user.Picture}")"
+                     class="rounded-circle img-thumbnail shadow" width="120" height="120" alt="User Image" />
+                <h4 class="mt-3 fw-bold text-dark">Hello, @user?.FullName</h4>
+            }
+        </div>
+        <div class="col-md-8">
+            <h2 class="text-primary fw-bold">Chào mừng bạn đến với hệ thống quản lý lịch trực và chấm công.</h2>
+            <p class="text-muted">Quản lý ca trực dễ dàng, chấm công chính xác và theo dõi lịch làm việc hiệu quả.</p>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card text-center shadow-lg border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Số ca trực</h5>
+                    <p class="fs-2 text-primary fw-bold">5</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-lg border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Số ngày đã chấm công</h5>
+                    <p class="fs-2 text-success fw-bold">3</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-lg border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Số ca đổi</h5>
+                    <p class="fs-2 text-warning fw-bold">1</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

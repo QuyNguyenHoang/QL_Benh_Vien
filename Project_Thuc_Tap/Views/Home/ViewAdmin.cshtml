@@ -1,0 +1,76 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trang Chủ - Quản lý lịch trực & chấm công</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+
+    <!-- Dashboard Content -->
+    <div class="container mt-4">
+        <h2 class="mb-4">Trang quản lý lịch trực & chấm công</h2>
+
+        <!-- Thống kê nhanh -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Nhân viên đang trực</h5>
+                        <p class="card-text fs-4">12 người</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-info mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Lịch trực hôm nay</h5>
+                        <p class="card-text fs-4">8 ca trực</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-danger mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Ca trực chưa duyệt</h5>
+                        <p class="card-text fs-4">3 ca</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chức năng chính -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Quản lý lịch trực</h5>
+                        <p class="card-text">Tạo mới, chỉnh sửa và duyệt lịch trực của nhân viên.</p>
+                        <a href="#" class="btn btn-primary">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title">Chấm công & điểm danh</h5>
+                        <p class="card-text">Theo dõi thời gian làm việc, điểm danh hàng ngày.</p>
+                        <a href="#" class="btn btn-secondary">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

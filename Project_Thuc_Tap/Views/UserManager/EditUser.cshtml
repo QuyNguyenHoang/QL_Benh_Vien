@@ -1,0 +1,83 @@
+﻿@model Project_Thuc_Tap.Models.User
+
+@{
+    ViewData["Title"] = "Chỉnh sửa thông tin người dùng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2 class="text-danger text-center">CHỈNH SỬA NHÂN VIÊN</h2>
+<div class="form-control">
+<form asp-controller="UserManager" asp-action="EditUser" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label class="form-label">Họ và Tên</label>
+        <input asp-for="FullName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label class="form-label">Giới tính</label>
+        <select asp-for="Sex" class="form-control">
+            <option value="true">Nam</option>
+            <option value="false">Nữ</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="form-label">Địa chỉ</label>
+        <input asp-for="Address" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label class="form-label">Ngày sinh</label>
+        <input asp-for="BirthDate" type="date" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label class="form-label">Ảnh đại diện</label>
+        <input type="file" name="Picture" class="form-control" onchange="previewImage(event)" />
+
+        <div style="display: flex; gap: 20px; margin-top: 10px;">
+            @if (!string.IsNullOrEmpty(Model.Picture))
+            {
+                <div style="text-align: center;">
+                    <p>Ảnh hiện tại:</p>
+                    <img src="~/Images/@Model.Picture" alt="User Image" width="150" height="150" style="border-radius: 50%; object-fit: cover;" />
+                </div>
+            }
+            <div style="text-align: center;">
+                <p>Ảnh mới tải lên:</p>
+                <img id="preview" src="#" alt="New Image" width="150" height="150" style="border-radius: 50%; object-fit: cover; display: none;" />
+            </div>
+        </div>
+    </div>
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const output = document.getElementById('preview');
+                output.src = reader.result;
+                output.style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+    <div class="form-group">
+        <label class="form-label">Tên đăng nhập</label>
+        <input asp-for="UserName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Số điện thoại</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-primary mt-3">Lưu thay đổi</button>
+    <a asp-action="User_ViewMain" class="btn btn-secondary mt-3">Hủy</a>
+</form>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}

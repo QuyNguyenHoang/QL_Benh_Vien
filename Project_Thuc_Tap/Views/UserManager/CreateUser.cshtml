@@ -1,0 +1,137 @@
+﻿@model Project_Thuc_Tap.Models.User
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2 class="text-danger text-center mt-2">Thêm mới nhân viên</h2>
+
+<form method="post" enctype="multipart/form-data" class="responsive">
+    <div class="form-control">
+        <div class="form-group">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Họ và tên
+                <img src="~/Icons/label.png" width="24" height="24" class="ms-1" />
+            </label>
+            <input asp-for="FullName" class="form-control mb-1" placeholder="Nhập họ và tên" />
+        </div>
+
+        <div class="form-group mb-1">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Ngày tạo
+                <img src="~/Icons/calendar (1).png" width="24" height="24" class="ms-1" />
+            </label>
+            <input type="date" class="form-control mb-1" value="@DateTime.Now.ToString("yyyy-MM-dd")" asp-for="CreatedDate" readonly />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Giới tính
+                <img src="~/Icons/sex.png" width="24" height="24" class="ms-1" />
+            </label>
+            <select class="form-select mb-1" asp-for="Sex">
+                <option>Nam</option>
+                <option>Nữ</option>
+                <option>Khác</option>
+            </select>
+        </div>
+
+        <div class="form-group ">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Địa chỉ
+                <img src="~/Icons/location-pin.png" width="24" height="24" class="ms-1" />
+            </label>
+            <textarea class="form-control mb-1" asp-for="Address" placeholder="Nhập địa chỉ"></textarea>
+        </div>
+
+        <div class="form-group ">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Ngày sinh
+                <img src="~/Icons/calendar (1).png" width="24" height="24" class="ms-1" />
+            </label>
+            <input type="date" class="form-control mb-1" asp-for="BirthDate" />
+        </div>
+
+        <div class="form-group ">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Hình ảnh
+                <img src="~/Icons/pictures.png" width="24" height="24" class="ms-1" />
+            </label>
+            <div class="d-flex align-items-center">
+                <input type="file" id="imageInput" class="form-control" onchange="previewImage()" />
+                <img id="imagePreview" src="" alt="Image preview" class="rounded-circle ms-3" width="48" height="48" style="display: none;" />
+            </div>
+            <script>
+                function previewImage() {
+                    var file = document.getElementById('imageInput').files[0];
+                    if (file) {
+                        var reader = new FileReader();
+                        reader.onload = e => {
+                            var imgPreview = document.getElementById('imagePreview');
+                            imgPreview.src = e.target.result;
+                            imgPreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            </script>
+        </div>
+@* 
+        <div class="form-group">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Phòng
+                <img src="~/Icons/workplace.png" width="24" height="24" class="ms-1" />
+            </label>
+            <select class="form-select mb-1" asp-for="RoomId">
+                <option value="" selected>Chưa có</option>
+                @foreach (var room in ViewBag.Room)
+                {
+                    <option value="@room.RoomId">@room.RoomName</option>
+                }
+            </select>
+        </div> *@
+
+
+
+        
+
+        <div class="form-group">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Địa chỉ Email
+                <img src="~/Icons/gmail.png" width="24" height="24" class="ms-1" />
+            </label>
+            <input class="form-control mb-1" asp-for="Email" placeholder="Nhập email" />
+        </div>
+        <div class="form-group">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Mật khẩu
+                <img src="~/Icons/people.png" width="24" height="24" class="ms-1" />
+            </label>
+            <input class="form-control mb-1" asp-for="PasswordHash" placeholder="Nhập tên Tài khoản" />
+        </div>
+        <div class="form-group">
+            <label class="form-label mb-1 d-flex align-items-center">
+                Số điện thoại
+                <img src="~/Icons/phone-call.png" width="24" height="24" class="ms-1" />
+            </label>
+            <input class="form-control mb-1" asp-for="PhoneNumber" type="tel" placeholder="Nhập số điện thoại" />
+        </div>
+
+        <div class="d-flex align-items-center justify-content-end mt-3">
+            <button type="submit" class="btn btn-success d-flex align-items-center me-2">
+                Lưu
+                <img src="~/Icons/plus.png" alt="Thêm" width="24" height="24" style="vertical-align: middle; margin-left: 10px;" />
+            </button>
+
+            <button type="button" class="btn btn-danger d-flex align-items-center" onclick="goBack()">
+                Hủy
+                <img src="~/Icons/delete (1).png" alt="Hủy" width="24" height="24" style="vertical-align: middle; margin-left: 10px;" />
+            </button>
+        </div>
+    </div>
+</form>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>

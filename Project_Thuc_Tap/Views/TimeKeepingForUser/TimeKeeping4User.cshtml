@@ -1,0 +1,94 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Project_Thuc_Tap.Models.TimeKeeping
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+<h2 class="mb-3 text-danger text-center">Chấm công</h2>
+<div class="form-control">
+    <form asp-action="TimeKeeping4User" method="post">
+        
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                
+                <ul>
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if( TempData["Warning"] !=null)
+        {
+            <div id="deleteAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Warning"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Warning2"] != null)
+        {
+            <div id="deleteAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Warning2"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (SignInManager.IsSignedIn(User))
+        {
+            var user = await UserManager.GetUserAsync(User);
+
+            <div class="mb-3">
+                <label class="form-label">Tên</label>
+                <input asp-for="Id" type="text" class="form-control" value="@user?.FullName" readonly />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+        }
+
+
+        <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input asp-for="Date" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                Chọn ca chấm công
+            </label>
+            <select class="form-select" asp-for="Shift">
+                <option value="Sáng">Sáng</option>
+                <option value="Chiều">Chiều</option>
+                <option value="Tối">Tối</option>
+            </select>
+
+        </div>
+        <div class="form-group">
+            <label class="form-label">Chọn thời gian chấm công</label>
+            <select class="form-select time-select" asp-for="TimeIn">
+                <option value="TimeIn">Giờ vào</option>
+                <option value="TimeOut">Giờ ra</option>
+            </select>
+            <span asp-validation-for="TimeIn" class="text-danger"></span>
+        </div>
+           
+        
+
+
+     
+
+        <div class="mb-3">
+            <label class="form-label">Mô tả</label>
+            <textarea asp-for="Description" class="form-control" placeholder="Nhập ghi chú"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Chấm công</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

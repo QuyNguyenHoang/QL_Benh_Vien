@@ -1,0 +1,81 @@
+﻿@model Project_Thuc_Tap.Models.DutySchedule
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<div class="container mt-4">
+    <h2 class="mb-3 text-danger text-center">CẬP NHẬT LỊCH TRỰC</h2>
+
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    @if (TempData["NotCreateDay"] != null)
+    {
+        <div id="deleteAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["NotCreateDay"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="form-control">
+    <form asp-action="EditDutySchedule" method="post">
+        <div class="form-group">
+            <label class="form-label">ID</label>
+            <input asp-for="DutyScheduleId" type="text" class="form-control" readonly />
+        </div>
+
+        <!-- Nhân viên -->
+        <div class="form-group">
+            <label class="form-label">Nhân viên</label>
+            <select asp-for="UserId" asp-items="ViewBag.UserList" class="form-select">
+                <option value="">-- Chọn nhân viên --</option>
+            </select>
+            <span asp-validation-for="UserId" class="text-danger"></span>
+        </div>
+
+        <!-- Ngày trực -->
+        <div class="form-group">
+            <label class="form-label">Ngày trực</label>
+            <input asp-for="DutyDays" type="date" class="form-control" value="@Model.DutyDays?.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="DutyDays" class="text-danger"></span>
+        </div>
+
+        <!-- Ca trực -->
+        <div class="form-group">
+            <label class="form-label">Ca trực</label>
+            <select asp-for="Shift" class="form-select">
+                <option value="Sáng">Sáng</option>
+                <option value="Chiều">Chiều</option>
+                <option value="Tối">Tối</option>
+            </select>
+            <span asp-validation-for="Shift" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Làm thêm</label>
+            <select asp-for="IsOverTime" class="form-select">
+                <option value="True">Làm thêm</option>
+                <option value="False">Không cho</option>
+                <option value="null">Đang đợi duyệt</option>
+            </select>
+        </div>
+        <!-- Trạng thái -->
+        <div class="form-group">
+            <label class="form-label">Trạng thái</label>
+            <select asp-for="Status" class="form-select">
+                <option value="true">Duyệt rồi</option>
+                <option value="false">Chưa duyệt</option>
+                <option value="">Đang đợi</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+
+        <!-- Mô tả -->
+        <div class="form-group">
+            <label class="form-label">Mô tả</label>
+            <textarea asp-for="Description" class="form-control" placeholder="Nhập ghi chú">@Model.Description</textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <!-- Nút gửi và hủy -->
+        <button type="submit" class="btn btn-success mt-2">Cập nhật</button>
+        <a asp-action="DutySchedule" class="btn btn-secondary mt-2">Hủy</a>
+    </form>
+ </div>
+</div>

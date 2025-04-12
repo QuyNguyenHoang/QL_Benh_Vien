@@ -1,0 +1,115 @@
+﻿@model IEnumerable<Project_Thuc_Tap.Models.CompensatoryLeave>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var dataList = ViewBag.Data as List<dynamic>;
+}
+<div class="responsive min-vh-100">
+    @if (TempData["SuccessProposed"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessProposed"]
+            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["No"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["No"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <h2 class="text-danger text-center">Đề Xuất Nghỉ Bù</h2>
+    <table class="table table-bordered table-sm">
+        <thead class="bg-light text-center text-nowrap small fw-bold">
+            <tr>
+                <th>Tên</th>
+                <th>Tổng giờ làm thêm</th>
+                <th>Theo ngày</th>
+                <th>Đề xuất nghỉ bù</th>
+
+            </tr>
+
+        </thead>
+        <tbody class="text-center text-nowrap small">
+            @if (dataList != null && dataList.Any())
+            {
+                foreach (var item in ViewBag.Data)
+                {
+
+                    <tr>
+                        <td>@item.FullName</td>
+                        <td>
+                            <div>
+                                <strong>Tổng số giờ làm thêm:</strong> @item.TotalOverTime giờ
+                            </div>
+                            <div>
+                                <strong>Số giờ nghỉ bù:</strong> @item.LeaveCount giờ
+                            </div>
+                            <div>
+                                <strong>Còn lại:</strong>
+                                <span class="text-success">
+                                    @{
+                                        int ot;
+                                        int.TryParse(item.TotalOverTime?.ToString(), out ot);
+                                        var result = ot - item.LeaveCount;
+                                    }
+                                    @result giờ
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>@item.ReportDate</td>
+                        <td>
+                            <a asp-action="ProposedLeave" asp-route-id="@item.UserId">
+                                <img src="~/Icons/check-mark.png" width="24" height="24" />
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-warning">Chưa có ai đủ điều kiện</td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+
+    <h2 class="text-danger text-center">Danh Sách Nghỉ Bù Được Đề Xuất</h2>
+    <table class="table table-bordered text-center table-sm">
+        <thead class="text-center text-nowrap small fw-bold">
+            <tr>
+                <th>Tên nhân viên</th>
+                <th>Ngày nghỉ bù</th>
+                <th>Trạng thái</th>
+                <th>Ca nghỉ</th>
+                <th>Hành động</th>
+
+            </tr>
+        </thead>
+        <tbody class="text-center text-nowrap  small">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@(string.IsNullOrEmpty(item.User?.FullName) ? "Không rõ" : item.User.FullName)</td>
+                    <td>@(item.CompensatoryDays.HasValue ? item.CompensatoryDays.Value.ToString("dd/MM/yyyy") : "Đang đợi người dùng chọn ngày nghỉ!")</td>
+                    <td class="@(item.Status == true? "text-success" :"text-danger")">@(item.Status == true ? "Duyệt rồi" : "Chưa duyệt")</td>
+                    <td>@(string.IsNullOrEmpty(item.Shift) ? "Đợi người dùng chọn ca muốn nghỉ!" : item.Shift)</td>
+                    <td>
+
+                        <a asp-action="EditCompensatoryLeaves" asp-route-id="@item.CompensatoryLeaveId" class="me-2" title="Sửa">
+                            <img src="~/Icons/edit (1).png" alt="đây là nút sửa" width="24" height="24" style="vertical-align:middle" />
+                        </a>
+                        <a asp-action="DeleteCompensatoryLeaves" asp-route-id="@item.CompensatoryLeaveId" class="text-danger" title="Xóa"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa chấm công này không?');">
+
+                            <img src="~/Icons/delete (1).png" alt="Đây là nút xoá" width="24" height="24" style="vertical-align:middle" />
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

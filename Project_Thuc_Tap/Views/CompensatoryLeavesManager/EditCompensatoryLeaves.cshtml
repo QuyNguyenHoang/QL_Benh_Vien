@@ -1,0 +1,87 @@
+﻿@model Project_Thuc_Tap.Models.CompensatoryLeave
+
+@{
+    ViewData["Title"] = "Chỉnh sửa nghỉ bù";
+}
+
+<h2>Chỉnh sửa nghỉ bù</h2>
+
+<form asp-action="EditCompensatoryLeaves" method="post">
+    <input type="hidden" asp-for="CompensatoryLeaveId" />
+
+    <div class="form-group">
+        <label asp-for="User.FullName">Họ tên</label>
+        <input asp-for="User.FullName" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="OverTimeDays">Số ngày làm</label>
+        <div class="d-flex align-items-center">
+            <input asp-for="OverTimeDays" class="form-control me-2" readonly
+                   id="OverTimeDays"
+                   value="@(ViewBag.ReloadField == "OverTimeDays" ? ViewBag.OverTimeDays : Model.OverTimeDays)" />
+
+            <button type="button" class="btn-0 border-0 bg-transparent reload-btn" data-field="OverTimeDays">
+                <img src="~/Icons/reload.png" alt="reload" width="24" height="24" class="me-2" />
+            </button>
+        </div>
+    </div>
+
+
+
+    <div class="form-group">
+        <label asp-for="OverTimeHours">Số giờ làm</label>
+        <div class="d-flex align-items-center">
+            <input id="OverTimeHours" asp-for="OverTimeHours" class="form-control me-2" width="150px" readonly/>
+
+            <button type="button" class="btn-0 border-0 bg-transparent" onclick="reloadField('OverTimeHours')">
+                <img src="~/Icons/reload.png" alt="reload" width="24" height="24" class="me-2" />
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function reloadField(field) {
+            event.preventDefault(); // Chặn load trang
+
+            const id = @Model.CompensatoryLeaveId;
+
+            fetch(`/CompensatoryLeavesManager/ReloadField?id=${id}&reloadField=${field}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (field === "OverTimeDays") {
+                        document.getElementById("OverTimeDays").value = data.overTimeDays;
+                    } else if (field === "OverTimeHours") {
+                        document.getElementById("OverTimeHours").value = data.overTimeHours;
+                    }
+                })
+                .catch(error => console.error('Lỗi:', error));
+        }
+    </script>
+
+
+    <div class="form-group">
+        <label asp-for="CompensatoryDays">Ngày nghỉ bù</label>
+        <input asp-for="CompensatoryDays" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Shift" >Ca trực</label>
+        <select asp-for="Shift" class="form-select">
+            <option>Sáng</option>
+            <option>Chiều</option>
+            <option>Tối</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status">Trạng thái</label>
+        <select asp-for="Status" class="form-select">
+            <option value="true">Duyệt rồi</option>
+            <option value="false">Chưa duyệt</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

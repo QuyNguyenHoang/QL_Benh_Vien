@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Project_Thuc_Tap.Models.CompensatoryLeave>
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-    var dataList = ViewBag.Data as List<dynamic>;
+    var dataList = (ViewBag.Data as IEnumerable<dynamic>)?.ToList();
 }
 <div class="responsive min-vh-100">
     @if (TempData["SuccessProposed"] != null)
@@ -33,7 +33,7 @@
         <tbody class="text-center text-nowrap small">
             @if (dataList != null && dataList.Any())
             {
-                foreach (var item in ViewBag.Data)
+                foreach (var item in dataList)
                 {
 
                     <tr>

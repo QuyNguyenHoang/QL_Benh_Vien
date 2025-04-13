@@ -34,6 +34,7 @@
         <div class="form-group">
             <label class="form-label">Ca trực</label>
             <select asp-for="Shift" class="form-select">
+                <option value="">-- Chọn ca trực --</option>
                 <option value="Sáng">Sáng</option>
                 <option value="Chiều">Chiều</option>
                 <option value="Tối">Tối</option>
@@ -43,9 +44,10 @@
         <div class="form-group">
             <label class="mb-2" >Duyệt làm thêm</label>
             <select asp-for="IsOverTime" class="form-select">
+                    <option value="">Ca thường</option>
                 <option value="True">Làm thêm</option>
                 <option value="False">Đang xem xét</option>
-                <option value="null">Đợi duyệt</option>
+                
             </select>
         </div>
         <div class="form-group">
@@ -53,7 +55,7 @@
             <select asp-for="Status" class="form-control">
                 <option value="true">Duyệt rồi</option>
                 <option value="false">Tạm ngưng</option>
-                <option value="null">Đang đợi </option> 
+                <option value="">Đang đợi </option> 
             </select>
             <span asp-validation-for="Status" class="text-danger"></span>
         </div>

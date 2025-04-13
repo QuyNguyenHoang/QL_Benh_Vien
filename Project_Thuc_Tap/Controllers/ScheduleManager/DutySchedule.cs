@@ -6,7 +6,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using Project_Thuc_Tap.Data;
 using Project_Thuc_Tap.Models;
+using X.PagedList;
+using X.PagedList.Extensions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
+
 
 namespace Project_Thuc_Tap.Controllers.ScheduleManager
 {
@@ -21,6 +25,44 @@ namespace Project_Thuc_Tap.Controllers.ScheduleManager
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
+        }
+
+        public async Task<IActionResult> Index(DateTime? date, string? filterType, string? query, int page = 1)
+        {
+            int pageSize = 10;
+            var queryable = _context.DutySchedule.Include(l => l.User).AsQueryable();
+
+            if (date.HasValue)
+            {
+                queryable = queryable.Where(l => l.DutyDays.HasValue && l.DutyDays.Value.Date == date.Value.Date);
+            }
+
+            if (!string.IsNullOrEmpty(filterType))
+            {
+                switch (filterType.ToLower())
+                {
+                    case "ten":
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            queryable = queryable.Where(l => l.User.FullName != null && l.User.FullName.Contains(query));
+                        }
+                        break;
+                    case "ca":
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            queryable = queryable.Where(l => l.Shift != null && l.Shift.Equals(query));
+                        }
+                        break;
+                    case "them":
+                        queryable = queryable.Where(l => l.IsOverTime != null && l.IsOverTime == true); break;
+                    case "trangthai":
+                        queryable = queryable.Where(l => l.Status != null && l.Status == false || l.Status == null); break;
+
+                }
+            }
+
+            var PageList =  queryable.OrderBy(l => l.DutyDays).ToPagedList(page, pageSize);
+            return View(PageList);
         }
 
         public async Task<IActionResult> DutySchedule(DateTime? selectedDate)
@@ -118,7 +160,7 @@ namespace Project_Thuc_Tap.Controllers.ScheduleManager
                     _context.Add(dutySchedule);
                     await _context.SaveChangesAsync();
                     TempData["SuccessCreateDutySchedule"] = "Tạo lịch trực thành công!";
-                    return RedirectToAction(nameof(DutySchedule));
+                    return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
@@ -132,7 +174,7 @@ namespace Project_Thuc_Tap.Controllers.ScheduleManager
 
             ViewBag.UserList = new SelectList(userList, "Id", "FullName");
 
-            return View(dutySchedule);
+            return RedirectToAction("Index");
         }
 
 
@@ -158,7 +200,7 @@ namespace Project_Thuc_Tap.Controllers.ScheduleManager
             await _context.SaveChangesAsync();
 
             TempData["DeleteDutyScheduleSuccess"] = $"Đã xóa lịch trực của '{schedule.User.FullName}' thành công!";
-            return RedirectToAction("DutySchedule");
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -220,12 +262,12 @@ namespace Project_Thuc_Tap.Controllers.ScheduleManager
                     await _context.SaveChangesAsync();
 
                     // Chuyển hướng về trang danh sách lịch trực
-                    return RedirectToAction("DutySchedule");
+                    return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
                     TempData["NotCreateDay"] = $"Có lỗi xảy ra: {ex.Message}";
-                    return RedirectToAction("DutySchedule");
+                    return RedirectToAction("Index");
                 }
             }
 

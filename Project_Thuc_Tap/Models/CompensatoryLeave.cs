@@ -15,9 +15,6 @@ namespace Project_Thuc_Tap.Models
 
         [ForeignKey("UserId")]
         public User? User { get; set; }
-
-        public string? OverTimeDays { get; set; }
-        public string? OverTimeHours { get; set; }
         public DateTime? CompensatoryDays { get; set; }
         public string? Shift { get; set; }
 

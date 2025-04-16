@@ -1,10 +1,19 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Common;
+using NuGet.Packaging;
+using NuGet.Packaging.Signing;
+using OfficeOpenXml;
 using Project_Thuc_Tap.Data;
 using Project_Thuc_Tap.Models;
+using System.ComponentModel;
 using System.Security.Cryptography;
 using X.PagedList.Extensions;
+using LicenseContext = OfficeOpenXml.LicenseContext;
+
+
 
 namespace Project_Thuc_Tap.Controllers.ReportManager
 {
@@ -12,17 +21,17 @@ namespace Project_Thuc_Tap.Controllers.ReportManager
     {
         private readonly UserManager<User> _userManager;
         private readonly ApplicationDbContext _context;
-        public ReportManagerController(UserManager<User>userManager, ApplicationDbContext context)
+        public ReportManagerController(UserManager<User> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
             _context = context;
         }
-        public async Task<IActionResult> Index( int page = 1 )
+        public async Task<IActionResult> Index(int page = 1)
         {
-            int pageSize = 5;
+            int pageSize = 10;
             var result = await _context.Reports
                 .Include(r => r.User)
-                .OrderBy( r => r.ReportId)
+                .OrderBy(r => r.ReportId)
                 .ToListAsync();
             var PageList = result.ToPagedList(page, pageSize);
             return View(PageList);
@@ -112,12 +121,12 @@ namespace Project_Thuc_Tap.Controllers.ReportManager
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> DetailReports(string id)
+        public async Task<IActionResult> DetailReports(string id, DateTime? FromDate, DateTime? ToDate, int page = 1)
         {
-            // Lấy tất cả ngày chấm công (không lặp lại, chỉ lấy ngày)
+            int pageSize = 10;
             var listDetail = await _context.TimeKeeping
-                .Where(l => l.Id == id )
-                .Include(l=>l.User)
+                .Where(l => l.Id == id)
+                .Include(l => l.User)
                 .Select(l => l.Date)
                 .Distinct()
                 .ToListAsync();
@@ -133,7 +142,7 @@ namespace Project_Thuc_Tap.Controllers.ReportManager
                         .Where(u => u.Id == id)
                         .FirstOrDefaultAsync();
                 var Shift = await _context.TimeKeeping
-                    .Where(t => t.Id == id && t.Date ==workingDate)
+                    .Where(t => t.Id == id && t.Date == workingDate)
                     .Select(t => t.Shift)
                     .Distinct()
                     .CountAsync();
@@ -144,7 +153,7 @@ namespace Project_Thuc_Tap.Controllers.ReportManager
                     .CountAsync();
                 var totalOverTime = OverTime * 8;
                 var totalLate = _context.TimeKeeping
-                   .Where(t => t.Id == id && t.Date ==workingDate && !string.IsNullOrEmpty(t.TimeLate))
+                   .Where(t => t.Id == id && t.Date == workingDate && !string.IsNullOrEmpty(t.TimeLate))
                    .AsEnumerable()
                    .Select(t => TimeSpan.Parse(t.TimeLate).TotalMinutes)
                    .Sum();
@@ -157,7 +166,7 @@ namespace Project_Thuc_Tap.Controllers.ReportManager
 
                 if (existingReport == null)
                 {
-                    
+
                     var newReport = new DetailReports
                     {
                         UserId = id,
@@ -169,7 +178,7 @@ namespace Project_Thuc_Tap.Controllers.ReportManager
                         WorkingDay = workingDate,
                         TotalCompensatoryLeave = totalCompensatoryLeaves.ToString(),
                         Notes = "Tự động thêm mới",
-                        
+
                     };
                     _context.DetailReports.Add(newReport);
                 }
@@ -192,25 +201,47 @@ namespace Project_Thuc_Tap.Controllers.ReportManager
                 && d.WorkingDay.HasValue
                 && !listDetail.Contains(d.WorkingDay.Value.Date))
                 .ToListAsync();
-            if(delete.Any())
+            if (delete.Any())
             {
                 _context.RemoveRange(delete);
-               await  _context.SaveChangesAsync();
-            }    
-            var result = await _context.DetailReports
-                .Where(r=>r.UserId == id)
+                await _context.SaveChangesAsync();
+            }
+            if (FromDate.HasValue && ToDate.HasValue)
+            {
+                var filterForDay = await _context.DetailReports
+                    .Where(r => r.UserId == id && r.WorkingDay >= FromDate && r.WorkingDay <= ToDate)
+                    .OrderBy(t => t.WorkingDay)
+                    .ToListAsync();
+                var PageList = filterForDay.ToPagedList(page, pageSize);
+                return View(PageList);
+            }
+            else if (FromDate.HasValue || ToDate.HasValue)
+            {
+                var FromOrTo = await _context.DetailReports
+                    .Where(t => t.UserId == id && (t.WorkingDay == FromDate || t.WorkingDay == ToDate))
+                     .OrderBy(t => t.WorkingDay)
+                    .ToListAsync();
+                var PageList = FromOrTo.ToPagedList(page, pageSize);
+                return View(PageList);
+            }
+            else
+            {
+                var result = await _context.DetailReports
+                .Where(r => r.UserId == id)
+                .OrderBy(t => t.WorkingDay)
                 .ToListAsync();
-            return View(result);
+                var PageList = result.ToPagedList(page, pageSize);
+
+                return View(PageList);
+            }
+
+
         }
         [HttpGet("/searchReport")]
-        public async Task<IActionResult> SearchReport( string? filterType, string query, int page = 1)
+        public async Task<IActionResult> SearchReport(string? filterType, string query, int page = 1)
         {
-            int pageSize = 5;
+            int pageSize = 10;
             var reports = _context.Reports.AsQueryable();
-
-
-            
-           
 
             if (!string.IsNullOrEmpty(filterType) && !string.IsNullOrEmpty(query))
             {
@@ -227,22 +258,144 @@ namespace Project_Thuc_Tap.Controllers.ReportManager
                         break;
                 }
             }
-            else 
+            else
             {
                 reports = reports.Where(r => true);
             }
-
-
-
             var count = reports.Count();
             ViewBag.Count = count;
             ViewBag.Query = query;
             var searchResults = await reports
-                .Include(nv=>nv.User)
+                .Include(nv => nv.User)
                 .OrderBy(nv => nv.ReportId)
                 .ToListAsync();
             var PageList = searchResults.ToPagedList(page, pageSize);
             return View("SearchReport", PageList);
         }
+        public async Task<IActionResult> DeleteReports (int id)
+        {
+            var delete = await _context.Reports
+                .Where(d=>d.ReportId == id)
+                .FirstOrDefaultAsync();
+            _context.Reports.Remove(delete);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> ExportReports ()
+        {
+            var resultReport = await _context.Reports
+                .Include(nv => nv.User)
+                .ToListAsync();
+            if(resultReport == null)
+            {
+                return BadRequest("Không có dữ liệu");
+            }  
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Báo cáo");
+                worksheet.Cell(1, 1).Value = "Số thứ tự";
+                worksheet.Cell(1, 2).Value = "Ngày tháng";
+                worksheet.Cell(1, 3).Value = "Tên";
+                worksheet.Cell(1, 4).Value = "Tổng giờ làm";
+                worksheet.Cell(1, 5).Value = "Tổng giờ làm thêm";
+                worksheet.Cell(1, 6).Value = "Tổng ngày nghỉ";
+                worksheet.Cell(1, 7).Value = "Tổng giờ đi trễ";
+                worksheet.Cell(1, 8).Value = "Ghi chú";
+
+                int stt = 1;
+                int row = 2;
+                foreach (var report in resultReport)
+                {
+                   
+                    worksheet.Cell(row, 1).Value = stt++;
+                    worksheet.Cell(row, 2).Value = report.ReportDate;
+                    worksheet.Cell(row, 3).Value = string.IsNullOrEmpty(report.User?.FullName)?"Không rõ":report.User.FullName;
+                    worksheet.Cell(row, 4).Value = report.TotalWorkHours;
+                    worksheet.Cell(row, 5).Value = report.TotalOverTime;
+                    worksheet.Cell(row, 6).Value = report.TotalCompensatoryDays;
+                    worksheet.Cell(row, 7).Value = report.TotalLateHours;
+                    worksheet.Cell(row, 8).Value = report.Notes;
+                    row++;
+
+                }
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                var filename = "Report.xlsx";
+                return File(stream , "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }    
+            
+        }
+        public async Task<IActionResult> ExportToExcel(string id, DateTime? FromDate , DateTime? ToDate)
+        {
+            // Lấy danh sách dữ liệu từ cơ sở dữ liệu
+            var result = _context.DetailReports.AsQueryable();
+            if (FromDate.HasValue && ToDate.HasValue)
+            {
+                result = result.Where(t => t.UserId == id && t.WorkingDay >= FromDate && t.WorkingDay <= ToDate);
+            }    
+            else if (ToDate.HasValue)
+            {
+                result = result.Where(t=>t.UserId==id &&   t.WorkingDay == ToDate);
+            }
+            else
+            {
+                result = result.Where(t=>t.UserId== id);
+            }
+            var details = await result.ToListAsync();
+            // Đảm bảo danh sách 'details' có dữ liệu
+            if (details == null || !details.Any())
+            {
+                return BadRequest("Không có dữ liệu để xuất.");
+            }
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Chi Tiết Báo Cáo");
+
+                // Thêm tiêu đề cho các cột
+                worksheet.Cell(1, 1).Value = "Số thứ tự";
+                worksheet.Cell(1, 2).Value = "Họ tên";
+                worksheet.Cell(1, 3).Value = "Ngày sinh";
+                worksheet.Cell(1, 4).Value = "Ngày làm việc";
+                worksheet.Cell(1, 5).Value = "Tổng giờ làm";
+                worksheet.Cell(1, 6).Value = "Tổng giờ làm thêm";
+                worksheet.Cell(1, 7).Value = "Tổng ngày nghỉ bù";
+                worksheet.Cell(1, 8).Value = "Tổng giờ đi trễ";
+                worksheet.Cell(1, 9).Value = "Ghi chú";
+
+                // Điền dữ liệu vào các dòng
+                int row = 2;
+                int stt = 1;
+                foreach (var detail in details)
+                {
+                    worksheet.Cell(row, 1).Value = stt++;
+                    worksheet.Cell(row, 2).Value = detail.FullName; 
+                    worksheet.Cell(row, 3).Value = detail.BirthDate;
+                    worksheet.Cell(row, 4).Value = detail.WorkingDay;
+                    worksheet.Cell(row, 5).Value = detail.TotalWorkHours;
+                    worksheet.Cell(row, 6).Value = detail.TotalOverTime;
+                    worksheet.Cell(row, 7).Value = detail.TotalCompensatoryLeave;
+                    worksheet.Cell(row, 8).Value = detail.TotalLate;
+                    worksheet.Cell(row, 9).Value = detail.Notes;
+                    row++;
+                }
+               
+                // Tạo MemoryStream và lưu file Excel vào stream
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                // Trả về file Excel cho người dùng
+                var fileName = "DanhSachChiTietBaiBaoCao.xlsx";
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+        }
+
+
+
+
+
+
     }
 }

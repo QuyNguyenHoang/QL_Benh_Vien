@@ -1,0 +1,48 @@
+﻿@model Project_Thuc_Tap.Models.CompensatoryLeave
+@{
+    Layout = "~/Views/Shared/_LayoutForUser.cshtml";
+}
+<h2 class=" text-center text-danger"> Cập nhật ngày nghỉ bù</h2>
+@if (TempData["Loi"] != null)
+{
+     <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+        @TempData["Loi"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="reponsive min-vh-100">
+    <form asp-action="Update4User" method="post">
+    <div class="container bg-light">
+        <div class="form-group">
+            <label class="form-label mb-2">Tên</label>
+            <input value="@(string.IsNullOrEmpty(Model.User?.FullName) ?"Không rõ" :Model.User.FullName )" readonly class="form-control mb-2" />
+        </div>
+        <div class="form-group ms-2">
+            <label class="form-label mb-2">Ngày nghỉ</label>
+            <input asp-for="CompensatoryDays" type="date" class="form-control mb-2" value="@(Model.CompensatoryDays.HasValue ? Model.CompensatoryDays.Value.ToString("dd/MM/yyyy"):"Đợi bạn thêm đó ")" />
+
+        </div>
+        <div class="form-group ms-2">
+            <label class="form-label">Ca nghỉ</label>
+            <select class="form-select" asp-for="Shift">
+                <option value="Sáng">Sáng</option>
+                <option value="Chiều">Chiều</option>
+                <option value="Tối">Tối</option>
+            </select>
+
+        </div>
+        <div class="form-group ms-2">
+            <label class="form-label mb-2">Trạng thái</label>
+            <input class="form-control @(Model.Status == true ?"text-success":(Model.Status ==false ? "text-warning":"text-danger"))" value="@(Model.Status == true ? "Đã duyệt" :(Model.Status == false ?"Chưa duyệt":"Không cho"))" readonly />
+        </div>
+        <button type="submit" class="btn btn-primary mt-5">Cập nhật</button>
+        <button class="btn btn-secondary btn-danger mt-5" onclick="goBack()">Huỷ</button>
+        <script>
+            function goBack()
+            {
+                window.history.back();
+            }
+        </script>
+    </div>
+    </form>
+</div>

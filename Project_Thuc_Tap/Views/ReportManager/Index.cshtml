@@ -4,8 +4,7 @@
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
-
-<div class="d-flex flex-column min-vh-100">
+<div class="responsive min-vh-100">
     <div class="flex-grow-1">
         <h2 class="text-danger text-center my-2">BÁO CÁO</h2>
         @if (TempData["Error"] != null)
@@ -23,6 +22,12 @@
               <button type="button"class="btn-close" data-bs-dismiss="alert"aria-label="Close"></button>
           </div>
         }
+        <form asp-controller="ReportManager" asp-action="ExportReports" method="post">
+            <button class="btn btn-success d-flex justify-content-end" type="submit">
+                <p>Xuất File Excel</p>
+                <img src="~/Icons/excel.png" width="24" height="24" />
+            </button>
+        </form>
         <form action="/searchReport" method="get">
             <div class="d-flex align-items-center justify-content-center my-5 w-100 gap-2 flex-nowrap">
                 <div class="d-flex align-items-center">
@@ -61,14 +66,12 @@
                 <button type="submit" class="btn p-0 border-0 bg-transparent">
                     <img src="~/Icons/reload.png" alt="Reload" width="24" height="24" />
                 </button>
-
-
             </div>
         </form>
 
 
 
-        <table class="table table-bordered table-responsive table-sm align-middle">
+        <table class="table table-bordered table-responsive table-sm align-middle table-hover">
             <thead class="table-light text-center text-nowrap small">
                 <tr>
                     <th>Ngày cập nhật</th>
@@ -99,7 +102,7 @@
                             <a asp-action="DetailReports" asp-route-id="@item.UserId">
                                 <img src="~/Icons/more.png" alt="Detail" width="24" height="24" class="me-2" />
                             </a>
-                            <a asp-action="DeleteReport" asp-route-id="@item.UserId" title="Xoá"
+                            <a asp-action="DeleteReports" asp-route-id="@item.ReportId" title="Xoá"
                                onclick="return confirm('Bạn có chắc muốn xoá thống kê của @item.User.FullName')">
                                 <img src="~/Icons/delete (1).png" width="24" height="24" class="mx-2" />
                             </a>

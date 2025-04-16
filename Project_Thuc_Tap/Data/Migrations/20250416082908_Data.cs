@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Project_Thuc_Tap.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class DB : Migration
+    public partial class Data : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -124,8 +124,6 @@ namespace Project_Thuc_Tap.Data.Migrations
                     CompensatoryLeaveId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OverTimeDays = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OverTimeHours = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CompensatoryDays = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Shift = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<bool>(type: "bit", nullable: true)
@@ -135,6 +133,36 @@ namespace Project_Thuc_Tap.Data.Migrations
                     table.PrimaryKey("PK_CompensatoryLeaves", x => x.CompensatoryLeaveId);
                     table.ForeignKey(
                         name: "FK_CompensatoryLeaves_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DetailReports",
+                columns: table => new
+                {
+                    DetailId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Picture = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Room = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Department = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    WorkingDay = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TotalWorkHours = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TotalOverTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TotalCompensatoryLeave = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TotalLate = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DetailReports", x => x.DetailId);
+                    table.ForeignKey(
+                        name: "FK_DetailReports_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -171,12 +199,12 @@ namespace Project_Thuc_Tap.Data.Migrations
                 {
                     ReportId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ReportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReportDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TotalWorkHours = table.Column<float>(type: "real", nullable: true),
-                    TotalOverTime = table.Column<float>(type: "real", nullable: true),
+                    TotalWorkHours = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TotalOverTime = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TotalCompensatoryDays = table.Column<int>(type: "int", nullable: false),
-                    TotalLateHours = table.Column<float>(type: "real", nullable: true),
+                    TotalLateHours = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
                 },
                 constraints: table =>
@@ -240,7 +268,9 @@ namespace Project_Thuc_Tap.Data.Migrations
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TimeIn = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TimeOut = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TimeLate = table.Column<float>(type: "real", nullable: true),
+                    TimeLate = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Shift = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsOverTime = table.Column<bool>(type: "bit", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -344,6 +374,11 @@ namespace Project_Thuc_Tap.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DetailReports_UserId",
+                table: "DetailReports",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DutySchedule_UserId",
                 table: "DutySchedule",
                 column: "UserId");
@@ -423,6 +458,9 @@ namespace Project_Thuc_Tap.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "CompensatoryLeaves");
+
+            migrationBuilder.DropTable(
+                name: "DetailReports");
 
             migrationBuilder.DropTable(
                 name: "DutySchedule");

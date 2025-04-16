@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Project_Thuc_Tap.Data;
 using Project_Thuc_Tap.Models;
+using X.PagedList.Extensions;
 
 namespace Project_Thuc_Tap.Controllers.CompensatoryLeavesManager
 {
@@ -20,9 +21,9 @@ namespace Project_Thuc_Tap.Controllers.CompensatoryLeavesManager
             _context = context;
 
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? date, string? filterType, string? query, int page =1)
         {
-
+            int pageSize = 10;
             var totalOverTime = await _context.Reports
                 .Where(t => !string.IsNullOrEmpty(t.TotalOverTime)) 
                 .Include(t => t.User)
@@ -63,13 +64,32 @@ namespace Project_Thuc_Tap.Controllers.CompensatoryLeavesManager
                  .ToList();
 
             ViewBag.Data = result;
+            var listResult = _context.CompensatoryLeaves
+                .Include(l=>l.User)
+                .AsQueryable();
+            if (date.HasValue)
+            {
+                listResult = listResult.Where(l=>l.CompensatoryDays == date.Value.Date);
+                
+            }
+            if (!string.IsNullOrEmpty(filterType))
+            {
+                switch (filterType.ToLower())
+                {
+                    case "ten":
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            listResult = listResult.Where(l => l.User.FullName != null && l.User.FullName.Contains(query));
+                        }
+                        break;
+                    case "chuaduyet":
+                        listResult = listResult.Where(l => l.Status == false);
+                        break;
+                }
+            }    
+                var PageList = listResult.OrderBy(t=>t.CompensatoryDays).ToPagedList(page, pageSize);
 
-            // Truy vấn dữ liệu nghỉ bù để hiển thị
-            var listResult = await _context.CompensatoryLeaves
-                .Include(li => li.User)
-                .ToListAsync();
-
-            return View(listResult);
+            return await Task.FromResult(View(PageList));
         }
 
         public async Task<IActionResult>ProposedLeave( CompensatoryLeave model ,string id)
@@ -154,7 +174,7 @@ namespace Project_Thuc_Tap.Controllers.CompensatoryLeavesManager
         
         
         [HttpGet]
-        public async Task<IActionResult> EditCompensatoryLeaves(int id, string reloadField)
+        public async Task<IActionResult> EditCompensatoryLeaves(int id)
         {
 
             var compensatoryLeave = await _context.CompensatoryLeaves
@@ -172,18 +192,14 @@ namespace Project_Thuc_Tap.Controllers.CompensatoryLeavesManager
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditCompensatoryLeaves(CompensatoryLeave com)
+        public async Task<IActionResult> EditCompensatoryLeaves(CompensatoryLeave com, int id)
         {
 
-            var result = await _context.CompensatoryLeaves.FindAsync(com.CompensatoryLeaveId);
+            var result = await _context.CompensatoryLeaves.FindAsync(id);
             if (result == null)
             {
                 return NotFound();
             }
-
-
-            result.OverTimeDays = com.OverTimeDays;
-            result.OverTimeHours = com.OverTimeHours;
             result.CompensatoryDays = com.CompensatoryDays;
             result.Status = com.Status;
             result.Shift = com.Shift;

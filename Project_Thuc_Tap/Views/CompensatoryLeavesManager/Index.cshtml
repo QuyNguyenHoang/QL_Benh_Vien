@@ -1,9 +1,11 @@
-﻿@model IEnumerable<Project_Thuc_Tap.Models.CompensatoryLeave>
+﻿@model X.PagedList.PagedList<CompensatoryLeave>
+@using X.PagedList.Mvc.Core
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-    var dataList = ViewBag.Data as List<dynamic>;
+    var dataList = (ViewBag.Data as IEnumerable<dynamic>)?.ToList();
 }
 <div class="responsive min-vh-100">
+
     @if (TempData["SuccessProposed"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -18,7 +20,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-    <h2 class="text-danger text-center">Đề Xuất Nghỉ Bù</h2>
+    <h2 class="text-danger text-center my-3">Đề Xuất Nghỉ Bù</h2>
     <table class="table table-bordered table-sm">
         <thead class="bg-light text-center text-nowrap small fw-bold">
             <tr>
@@ -33,7 +35,7 @@
         <tbody class="text-center text-nowrap small">
             @if (dataList != null && dataList.Any())
             {
-                foreach (var item in ViewBag.Data)
+                foreach (var item in dataList)
                 {
 
                     <tr>
@@ -77,8 +79,31 @@
         </tbody>
     </table>
 
-    <h2 class="text-danger text-center">Danh Sách Nghỉ Bù Được Đề Xuất</h2>
-    <table class="table table-bordered text-center table-sm">
+   
+    <h2 class="text-danger text-center my-2">Danh Sách Nghỉ Bù Được Đề Xuất</h2>
+    <form asp-controller="CompensatoryLeavesManager" asp-action="Index" method="get">
+        <div class="d-flex align-items-center justify-content-center my-5 w-100 gap-2 flex-nowrap">
+            <div class="d-flex align-items-center">
+                <img src="~/Icons/calendar (1).png" width="24" height="24" alt="Lịch" class="me-2" />
+                <input type="date" name="date" class="form-control w-auto" value="@Context.Request.Query["date"]" />
+            </div>
+            <div class="d-flex align-items-center">
+                <img src="~/Icons/options.png" width="24" height="24" alt="Lịch" class="me-2" />
+                <select name="filterType" class="form-select w-auto">
+                    <option value="ten">Tên</option>
+                    <option value="chuaduyet">Chưa duyệt</option>
+                    <option value="dangdoi">Đang đợi</option>
+                </select>
+            </div>
+
+            <input type="search" class="form-control w-25 ms-2" placeholder="Tìm kiếm..." name="query" value="@Context.Request.Query["query"]" />
+            <button type="submit" class="btn btn-primary d-flex justify-content-center">
+                Tìm kiếm
+                <img src="~/Icons/find.png" width="24" height="24" alt="Tìm kiếm" class="ms-2" />
+            </button>
+        </div>
+    </form>
+    <table class="table table-bordered text-center table-sm table-hover">
         <thead class="text-center text-nowrap small fw-bold">
             <tr>
                 <th>Tên nhân viên</th>
@@ -90,26 +115,63 @@
             </tr>
         </thead>
         <tbody class="text-center text-nowrap  small">
-            @foreach (var item in Model)
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@(string.IsNullOrEmpty(item.User?.FullName) ? "Không rõ" : item.User.FullName)</td>
+                        <td class="@(item.CompensatoryDays == DateTime.Now.Date ? "bg-primary":"")">@(item.CompensatoryDays.HasValue ? item.CompensatoryDays.Value.ToString("dd/MM/yyyy") : "Đang đợi người dùng chọn ngày nghỉ!")</td>
+                        <td class="@(item.Status == true? "text-success" :"text-danger")">@(item.Status == true ? "Duyệt rồi" : "Chưa duyệt")</td>
+                        <td>@(string.IsNullOrEmpty(item.Shift) ? "Đợi người dùng chọn ca muốn nghỉ!" : item.Shift)</td>
+                        <td>
+
+                            <a asp-action="EditCompensatoryLeaves" asp-route-id="@item.CompensatoryLeaveId" class="me-2" title="Sửa">
+                                <img src="~/Icons/edit (1).png" alt="đây là nút sửa" width="24" height="24" style="vertical-align:middle" />
+                            </a>
+                            <a asp-action="DeleteCompensatoryLeaves" asp-route-id="@item.CompensatoryLeaveId" class="text-danger" title="Xóa"
+                               onclick="return confirm('Bạn có chắc chắn muốn xóa không?');">
+
+                                <img src="~/Icons/delete (1).png" alt="Đây là nút xoá" width="24" height="24" style="vertical-align:middle" />
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
             {
                 <tr>
-                    <td>@(string.IsNullOrEmpty(item.User?.FullName) ? "Không rõ" : item.User.FullName)</td>
-                    <td>@(item.CompensatoryDays.HasValue ? item.CompensatoryDays.Value.ToString("dd/MM/yyyy") : "Đang đợi người dùng chọn ngày nghỉ!")</td>
-                    <td class="@(item.Status == true? "text-success" :"text-danger")">@(item.Status == true ? "Duyệt rồi" : "Chưa duyệt")</td>
-                    <td>@(string.IsNullOrEmpty(item.Shift) ? "Đợi người dùng chọn ca muốn nghỉ!" : item.Shift)</td>
-                    <td>
-
-                        <a asp-action="EditCompensatoryLeaves" asp-route-id="@item.CompensatoryLeaveId" class="me-2" title="Sửa">
-                            <img src="~/Icons/edit (1).png" alt="đây là nút sửa" width="24" height="24" style="vertical-align:middle" />
-                        </a>
-                        <a asp-action="DeleteCompensatoryLeaves" asp-route-id="@item.CompensatoryLeaveId" class="text-danger" title="Xóa"
-                           onclick="return confirm('Bạn có chắc chắn muốn xóa chấm công này không?');">
-
-                            <img src="~/Icons/delete (1).png" alt="Đây là nút xoá" width="24" height="24" style="vertical-align:middle" />
-                        </a>
-                    </td>
+                    <td colspan="5" class="text-danger text-center">Không có nội dung</td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+<footer class=" py-3 mt-auto">
+    <div class="container text-center">
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                @if (Model != null && Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber - 1 })">«</a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model?.PageCount; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+
+                @if (Model != null && Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber + 1 })">»</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</footer>

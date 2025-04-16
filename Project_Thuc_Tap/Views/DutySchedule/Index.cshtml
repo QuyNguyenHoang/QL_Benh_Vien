@@ -1,0 +1,154 @@
+﻿@model X.PagedList.PagedList<DutySchedule>
+@using X.PagedList.Mvc.Core
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2 class="text-danger text-center">Quản lý Lịch Trực</h2>
+@if (TempData["UpdateDutyAccess"] != null)
+{
+    <div id="updateAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["UpdateDutyAccess"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["DeleteDutyScheduleSuccess"] != null)
+{
+    <div id="deleteAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["DeleteDutyScheduleSuccess"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessCreateDutySchedule"] != null)
+{
+    <div id="createAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessCreateDutySchedule"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["DaGiaoViec"] != null)
+{
+    <div id="createAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["DaGiaoViec"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["DutySuccess"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["DutySuccess"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="container responsive min-vh-100">
+    <form asp-controller="DutySchedule" asp-action="Index" method="get">
+        <div class="d-flex align-items-center justify-content-center my-4 w-100 gap-2 flex-nowrap">
+            <div class="d-flex align-items-center">
+                <img src="~/Icons/calendar (1).png" width="24" height="24" alt="Lịch" class="me-2" />
+                <input type="date" name="date" class="form-control w-auto" />
+            </div>
+            <div class="d-flex align-items-center">
+                <img src="~/Icons/options.png" width="24" height="24" alt="Lịch" class="me-2" />
+                <select name="filterType" class="form-select w-auto">
+                    <option value="ten">Tên</option>
+                    <option value="ca">Ca</option>
+                    <option value="them">Làm thêm</option>
+                    <option value="trangthai">Chưa duyệt</option>
+                </select>
+            </div>
+
+
+            <input type="search" class="form-control w-25 ms-2" placeholder="Tìm kiếm..." name="query" />
+            <button type="submit" class="btn btn-primary d-flex justify-content-center">
+                Tìm kiếm
+                <img src="~/Icons/find.png" width="24" height="24" alt="Tìm kiếm" class="ms-2" />
+            </button>
+
+
+
+
+        </div>
+    </form>
+    <div class="d-flex justify-content-end">
+        <a asp-controller="DutySchedule" asp-action="CreateDutySchedule">
+            <img src="~/Icons/plus.png" alt="Thêm" width="24" height="24" />
+        </a>
+    </div>
+    <table class="table table-bordered table-responsive-sm table-sm table-hover">
+        <thead class="bg-light text-center text-nowrap small fw-bold">
+            <tr>
+                <th>Họ và tên</th>
+                <th>Ngày trực</th>
+                <th>Ca trực</th>
+                <th>Làm thêm</th>
+                <th>Ca trực</th>
+                <th>Trạng thái</th>
+                <th>Mô tả</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody class="text-center text-nowrap small">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@(string.IsNullOrEmpty(item.User?.FullName) ? "Chưa rõ" : item.User.FullName)</td>
+                        <td class="@(item.DutyDays.HasValue && item.DutyDays.Value.ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy") ? "bg-primary":"")">
+                            @(item.DutyDays.HasValue ? item.DutyDays.Value.ToString("dd/MM/yyyy") : "Chưa có ")
+                        </td>
+                        <td>@(string.IsNullOrEmpty(item.Shift) ? "Chưa có ca trực" : item.Shift)</td>
+                        <td class="@(item.IsOverTime == true ? "text-success":(item.IsOverTime ==false ?"text-black": "text-black"))">@(item.IsOverTime == true ? "Làm thêm:" : (item.IsOverTime == false ? "Ca thường" : "Ca thường"))</td>
+                        <td>@(string.IsNullOrEmpty(item.Shift) ? "Chưa có ca trực" : item.Shift)</td>
+                        <td class="@(item.Status == true ?"text-success":(item.Status == false ?"text-warning":""))">@(item.Status == true?"Đã duyệt" :(item.Status == false ?"Chưa duyệt" :"Đợi!"))</td>
+                        <td class="@(string.IsNullOrEmpty(item.Description) ?"text-danger":"text-black")">@(string.IsNullOrEmpty(item.Description) ? "Không có mô tả" : item.Description)</td>
+                        <td>
+                            <a asp-action="EditDutySchedule" asp-route-id="@item.DutyScheduleId">
+                                <img src="~/Icons/edit (1).png" alt="Edit" width="24" height="24" style="vertical-align:middle" />
+                            </a>
+                            <a asp-action="DeleteDutySchedule" asp-route-id="@item.DutyScheduleId" onclick="return confirm ('Bạn có chắc chắn muốn xoá không?')">
+                                <img src="~/Icons/delete (1).png" alt="Edit" width="24" height="24" style="vertical-align:middle" />
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-danger text-center"> Chưa có dữ liệu</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+  
+</div>
+<!-- Footer phân trang -->
+<footer class=" py-3 mt-auto">
+    <div class="container text-center">
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                @if (Model!= null && Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber - 1 })">«</a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model?.PageCount; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+
+                @if (Model != null && Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber + 1 })">»</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</footer>

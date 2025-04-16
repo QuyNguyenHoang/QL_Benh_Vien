@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project_Thuc_Tap.Data;
 using Project_Thuc_Tap.Models;
+using X.PagedList.Extensions;
 
 namespace Project_Thuc_Tap.Controllers.TimeKeepingManager
 {
@@ -17,13 +18,33 @@ namespace Project_Thuc_Tap.Controllers.TimeKeepingManager
             _userManager = userManager;
             _context = context;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index( string? filterType, DateTime? date, string? query, int page = 1)
         {
-            var listTimeKeeping = await _context.TimeKeeping
-                .Include(tk => tk.User) 
-                .ToListAsync();
+            int pageSize = 10;
+            var queryable = _context.TimeKeeping
+                .Include(tk => tk.User).AsQueryable();
+                
+            if (date.HasValue)
+            {
+                queryable = queryable.Where(q => q.Date == date);
+            }
 
-            return View(listTimeKeeping);
+            if (!string.IsNullOrEmpty(filterType))
+            {
+                switch (filterType.ToLower())
+                {
+
+                    case "ten":
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            queryable = queryable.Where(q => q.User.FullName != null && q.User.FullName.Contains(query));
+                        }
+                        break;
+
+                }
+            }
+            var PageList = queryable.OrderBy(t=>t.Id).ToPagedList(page, pageSize);
+            return await Task.FromResult(View(PageList));
         }
         [HttpGet]
         public async Task<IActionResult> EditTimeKeeping(int id)

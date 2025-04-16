@@ -26,125 +26,150 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["error"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if(TempData["ImportFail"]!=null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ImportFail"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ImportSuccess"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["ImportSuccess"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="reposive min-vh-100">
+    <form action="/search" method="get">
+        <div class="d-flex align-items-center justify-content-center my-4 w-100 gap-2 flex-nowrap">
+            <div class="d-flex align-items-center">
+                <img src="~/Icons/calendar (1).png" width="24" height="24" alt="Lịch" class="me-2" />
+                <input type="date" name="date" class="form-control w-auto" />
+            </div>
+            <div class="d-flex align-items-center">
+                <img src="~/Icons/options.png" width="24" height="24" alt="Lịch" class="me-2" />
+                <select name="filterType" class="form-select w-auto">
+                    <option value="ten">Tên</option>
+                    <option value="phong">Phòng</option>
+                    <option value="khoa">Khoa</option>
+
+                    <option value="sodienthoai">Số điện thoại</option>
+                </select>
+            </div>
 
 
-<div class="reposive min-vh-100"> 
-<form action="/search" method="get">
-    <div class="d-flex align-items-center justify-content-center my-4 w-100 gap-2 flex-nowrap">
-        <div class="d-flex align-items-center">
-            <img src="~/Icons/calendar (1).png" width="24" height="24" alt="Lịch" class="me-2" />
-            <input type="date" name="date" class="form-control w-auto" />
-        </div>
-        <div class="d-flex align-items-center">
-            <img src="~/Icons/options.png" width="24" height="24" alt="Lịch" class="me-2" />
-        <select name="filterType" class="form-select w-auto">
-            <option value="phong">Phòng</option>
-            <option value="khoa">Khoa</option>
-            <option value="ten">Tên</option>
-            <option value="sodienthoai">Số điện thoại</option>
-        </select>
-        </div>
-
-   
-        <input type="search" class="form-control w-25 ms-2" placeholder="Tìm kiếm..." name="query" />
+            <input type="search" class="form-control w-25 ms-2" placeholder="Tìm kiếm..." name="query" />
             <button type="submit" class="btn btn-primary d-flex justify-content-center">
                 Tìm kiếm
                 <img src="~/Icons/find.png" width="24" height="24" alt="Tìm kiếm" class="ms-2" />
             </button>
-        
 
-       
-        
+
+
+
+        </div>
+    </form>
+    <div class="d-flex justify-content-end mb-2">
+        <a asp-action="CreateUser">
+            <img src="~/Icons/plus.png" width="24" height="24"/>
+        </a>
     </div>
-</form>
-<table class="table table-striped table-bordered table-sm">
-    <thead class="text-center text-nowrap small bg-light">
-        <tr>
-            <th>Họ và tên</th>
-            <th>Ngày vào</th>
-            <th>Giới tính</th>
-            <th>Địa chỉ</th>
-            <th>Ngày sinh</th>
-            <th>Hình ảnh</th>
-            <th>Tên đăng nhập</th>
-            <th>Email</th>
-            <th>Số điện thoại</th>
-            <th>Hành động</th>
-
-        </tr>
-    </thead>
-    <tbody class="text-center text-nowrap small">
-        @{
-            int stt = (Model.PageNumber - 1) * Model.PageSize;
-        }
-        @foreach (var user in Model)
-        {
+    <table class="table table-striped table-bordered table-sm table-hover">
+        <thead class="text-center text-nowrap small bg-light">
             <tr>
-                <td>@user.FullName</td>
-                <td>@user.CreatedDate</td>
-                <td>@(user.Sex.HasValue ? (user.Sex.Value ? "Nam" : "Nữ") : "Chưa xác định")</td>
-                <td>@user.Address</td>
-                <td>@user.BirthDate</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(user.Picture))
-                    {
-                        <img src="~/Images/@user.Picture"
-                             alt="User Image"
-                             width="48"
-                             height="48"
-                             style="border-radius: 50%; object-fit: cover;" />
-                    }
-                    else
-                    {
-                        <img src="~/Images/user (1).png"
-                             alt="Không có hình"
-                             width="48"
-                             height="48"
-                             style="border-radius: 50%; object-fit: cover;" />
-                    }
-                </td>
-                <td>@user.UserName</td>
-                <td>@user.Email</td>
-                <td>@user.PhoneNumber</td>
-                <td style="white-space: nowrap;">
-                    <!-- Nút chỉnh sửa -->
-                    <a asp-action="EditUser" asp-route-id="@user.Id" class="me-2" title="Chỉnh sửa">
-                        <img src="~/Icons/edit (1).png" alt="Edit" width="24" height="24" style="vertical-align: middle;" />
-                    </a>
-                    <a asp-action="DeleteUser" asp-route-id="@user.Id" class="text-danger" title="Xóa"
-                       onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này không?');">
-                        <img src="~/Icons/delete (1).png" alt="Delete" width="24" height="24" style="vertical-align: middle;" />
-                    </a>
-                </td>
+                <th>Họ và tên</th>
+                <th>Ngày vào</th>
+                <th>Giới tính</th>
+                <th>Địa chỉ</th>
+                <th>Ngày sinh</th>
+                <th>Hình ảnh</th>
+                <th>Tên đăng nhập</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Hành động</th>
+
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody class="text-center  small">
+            @{
+                int stt = (Model.PageNumber - 1) * Model.PageSize;
+            }
+            @foreach (var user in Model)
+            {
+                <tr class="@(user.Email == "Admin@gmail.com" ? "bg-primary":"")">
+                    <td >@user.FullName</td>
+                    <td>@user.CreatedDate</td>
+                    <td>@(user.Sex.HasValue ? (user.Sex.Value ? "Nam" : "Nữ") : "Chưa xác định")</td>
+                    <td>@user.Address</td>
+                    <td>@user.BirthDate</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(user.Picture))
+                        {
+                            <img src="~/Images/@user.Picture"
+                                 alt="User Image"
+                                 width="48"
+                                 height="48"
+                                 style="border-radius: 50%; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <img src="~/Images/user (1).png"
+                                 alt="Không có hình"
+                                 width="48"
+                                 height="48"
+                                 style="border-radius: 50%; object-fit: cover;" />
+                        }
+                    </td>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>@user.PhoneNumber</td>
+                    <td style="white-space: nowrap;">
+                        <!-- Nút chỉnh sửa -->
+                        <a asp-action="EditUser" asp-route-id="@user.Id" class="me-2" title="Chỉnh sửa">
+                            <img src="~/Icons/edit (1).png" alt="Edit" width="24" height="24" style="vertical-align: middle;" />
+                        </a>
+                        <a asp-action="DeleteUser" asp-route-id="@user.Id" class="text-danger" title="Xóa"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này không?');">
+                            <img src="~/Icons/delete (1).png" alt="Delete" width="24" height="24" style="vertical-align: middle;" />
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <!-- Phân trang -->
 <footer>
-<div class="d-flex justify-content-center mt-4">
-    <ul class="pagination pagination-sm">
-        @if (Model.HasPreviousPage)
-        {
-            <li class="page-item">
-                <a class="page-link" href="@Url.Action("User_ViewMain", new { page = Model.PageNumber - 1 })">«</a>
-            </li>
-        }
+    <div class="d-flex justify-content-center mt-4">
+        <ul class="pagination pagination-sm">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("User_ViewMain", new { page = Model.PageNumber - 1 })">«</a>
+                </li>
+            }
 
-        @for (int i = 1; i <= Model.PageCount; i++)
-        {
-            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                <a class="page-link" href="@Url.Action("User_ViewMain", new { page = i })">@i</a>
-            </li>
-        }
+            @for (int i = 1; i <= Model.PageCount; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("User_ViewMain", new { page = i })">@i</a>
+                </li>
+            }
 
-        @if (Model.HasNextPage)
-        {
-            <li class="page-item">
-                <a class="page-link" href="@Url.Action("User_ViewMain", new { page = Model.PageNumber + 1 })">»</a>
-            </li>
-        }
-    </ul>
-</div>
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("User_ViewMain", new { page = Model.PageNumber + 1 })">»</a>
+                </li>
+            }
+        </ul>
+    </div>
 </footer>

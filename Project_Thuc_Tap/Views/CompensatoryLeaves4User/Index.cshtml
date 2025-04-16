@@ -1,0 +1,57 @@
+﻿@model List<Project_Thuc_Tap.Models.CompensatoryLeave>
+@{
+    Layout = "~/Views/Shared/_LayoutForUser.cshtml";
+}
+
+@if (TempData["SuccessUpdateComp"] != null)
+
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        @TempData["SuccessUpdateComp"]
+        <button  class=" btn-close " data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="reponsive min-vh-100">
+    <div class="container">
+        <h2 class="text-danger text-center">Danh Sách Nghỉ Bù Được Đề Xuất</h2>
+        <table class="table  table-responsive-sm table-bordered ">
+            <thead class="text-center fw-bold text-nowrap small bg-light">
+                <tr>
+                    <th>Tên nhân viên</th>
+                    <th>Ngày nghỉ bù</th>
+                    <th>Trạng thái</th>
+                    <th>Ca nghỉ</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody class="text-center text-nowrap small">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@(string.IsNullOrEmpty(item.User?.FullName) ? "Không rõ" : item.User.FullName)</td>
+                            <td>@(item.CompensatoryDays.HasValue ? item.CompensatoryDays.Value.ToString("dd/MM/yyyy") : "Chưa có ngày nghỉ")</td>
+                            <td class="@(item.Status == true ? "text-success" : "text-danger")">@(item.Status == true ? "Đã được duyệt" : (item.Status == false ? "Đang đợi duyệt" : "Từ chối"))</td>
+                            <td>@(string.IsNullOrEmpty(item.Shift) ? "Đang đợi cập nhật" : item.Shift)</td>
+                            <td>
+                                <a asp-action="Update4User" asp-route-id="@item.CompensatoryLeaveId">
+                                    <img src="~/Icons/edit (1).png" alt="Sửa" width="24" height="24" style="vertical-align:middle" />
+                                </a>
+                                <a asp-action="Refuse" asp-route-id="@item.CompensatoryLeaveId">
+                                    <img src="~/Icons/delete (1).png" width="24" height="24" style="vertical-align:middle" class="ms-2" />
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-danger text-center">Chưa có đề xuất nghỉ bù nào</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

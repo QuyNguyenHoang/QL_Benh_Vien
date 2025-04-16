@@ -2,37 +2,40 @@
 
 @{
     ViewData["Title"] = "Chỉnh Sửa Chấm Công";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
 <h2 class="text-danger text-center">Chỉnh Sửa Chấm Công</h2>
-<div class="form-control"> 
-<form asp-action="EditTimeKeeping" method="post">
-    <input type="hidden" asp-for="TimeKeepingId" />
-    <div class="form-group">
-        <label  class="form-label">Họ Tên</label>
-        <input asp-for="User.FullName" class="form-control" readonly />
-    </div>
-    <div class="form-group">
-        <label class="form-label">Ngày</label>
-        <input asp-for="Date" class="form-control" type="date" />
-    </div>
+<div class="responsive min-vh-100">
+    <div class="form-control">
+        <form asp-action="EditTimeKeeping" method="post">
+            <input type="hidden" asp-for="TimeKeepingId" />
+            <div class="form-group">
+                <label class="form-label">Họ Tên</label>
+                <input asp-for="User.FullName" class="form-control" readonly />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ngày</label>
+                <input asp-for="Date" class="form-control" type="date" />
+            </div>
 
-    <div class="form-group">
-        <label class="form-label">Giờ Vào</label>
-        <input asp-for="TimeIn" class="form-control" type="time" />
-    </div>
+            <div class="form-group">
+                <label class="form-label">Giờ Vào</label>
+                <input asp-for="TimeIn" class="form-control" type="time" />
+            </div>
 
-    <div class="form-group">
-        <label class="form-label">Giờ Ra</label>
-        <input asp-for="TimeOut" class="form-control" type="time" />
-    </div>
+            <div class="form-group">
+                <label class="form-label">Giờ Ra</label>
+                <input asp-for="TimeOut" class="form-control" type="time" />
+            </div>
 
-    <div class="form-group">
-        <label  class="form-label">Ghi Chú</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
+            <div class="form-group">
+                <label class="form-label">Ghi Chú</label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+            </div>
 
-    <button type="submit" class="btn btn-primary mb-2">Lưu</button>
-    <a asp-action="Index" class="btn btn-secondary mb-2">Huỷ</a>
-</form>
+            <button type="submit" class="btn btn-primary my-2">Lưu</button>
+            <a asp-action="Index" class="btn btn-secondary my-2">Huỷ</a>
+        </form>
+    </div>
 </div>

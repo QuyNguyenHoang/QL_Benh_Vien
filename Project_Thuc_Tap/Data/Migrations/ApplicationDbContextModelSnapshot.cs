@@ -166,12 +166,6 @@ namespace Project_Thuc_Tap.Data.Migrations
                     b.Property<DateTime?>("CompensatoryDays")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("OverTimeDays")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OverTimeHours")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Shift")
                         .HasColumnType("nvarchar(max)");
 

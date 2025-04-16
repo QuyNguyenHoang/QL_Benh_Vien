@@ -138,7 +138,7 @@ namespace Project_Thuc_Tap.Controllers.User_Area
             }
 
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Chấm công thành công!";
+            TempData["Success4User"] = "Chấm công thành công!";
 
             var thongbao = await _context.TimeKeeping
                 .FirstOrDefaultAsync(tk => tk.Id == user.Id && tk.Date == today);
@@ -175,7 +175,7 @@ namespace Project_Thuc_Tap.Controllers.User_Area
                     if (gioVao > gioTre)
                     {
                         TimeSpan lateTime = gioVao - gioTre;
-                        thongbao.TimeLate = lateTime.ToString(@"hh\:mm\:ss");
+                        thongbao.TimeLate = lateTime.ToString(@"hh\:mm");
                         _context.TimeKeeping.Update(thongbao);
                         TempData["Warning"] = $"Bạn đã đi trễ {lateTime.TotalHours} giờ trong ca {catruc.Shift}!";
                     }

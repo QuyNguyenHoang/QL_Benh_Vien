@@ -1,6 +1,29 @@
 ﻿@model Project_Thuc_Tap.Models.DutySchedule
-<div class="container mt-4">
-    <h2 class="mb-3 text-danger text-center">Thêm Lịch Trực Mới</h2>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2 class="my-3 text-danger text-center">Thêm Lịch Trực Mới</h2>
+
+<form asp-controller="DutySchedule" asp-action="Auto" method="post" class="row g-3 align-items-end justify-content-end">
+    <div class="col-auto">
+        <label for="FromDate" class="form-label">Từ ngày</label>
+        <input type="date" name="FromDate" id="FromDate" class="form-control" required />
+    </div>
+
+    <div class="col-auto">
+        <label for="ToDate" class="form-label">Đến ngày</label>
+        <input type="date" name="ToDate" id="ToDate" class="form-control" required />
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary me-3">
+            Tự động
+            <img src="~/Icons/update.png" width="24" height="24" />
+        </button>
+    </div>
+</form>
+
+<div class="container mt-4 responsive">
     @if (TempData["NotCreateDay"] != null)
     {
         <div id="deleteAlert" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -12,6 +35,20 @@
     {
         <div id="createAlert" class="alert alert-success alert-dismissible fade show" role="alert">
             @TempData["DaGiaoViec"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["FromDateInValid"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["FromDateInValid"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ToDateInvalid"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ToDateInvalid"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
@@ -67,8 +104,8 @@
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
 
-        <button type="submit" class="btn btn-primary">Thêm lịch trực</button>
-        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+        <button type="submit" class="btn btn-primary my-2">Thêm lịch trực</button>
+        <a asp-action="Index" class="btn btn-secondary my-2">Hủy</a>
     </form>
 </div>
 </div>

@@ -5,11 +5,11 @@
 <h2 class="mb-3 text-danger text-center">Chấm công</h2>
 <div class="form-control">
     <form asp-action="TimeKeeping4User" method="post">
-        
+
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                
+
                 <ul>
                     @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                     {
@@ -20,7 +20,7 @@
             </div>
         }
 
-        @if( TempData["Warning"] !=null)
+        @if (TempData["Warning"] != null)
         {
             <div id="deleteAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
                 @TempData["Warning"]
@@ -31,6 +31,13 @@
         {
             <div id="deleteAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
                 @TempData["Warning2"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Success4User"] != null)
+        {
+            <div id="deleteAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success4User"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
@@ -70,12 +77,6 @@
             </select>
             <span asp-validation-for="TimeIn" class="text-danger"></span>
         </div>
-           
-        
-
-
-     
-
         <div class="mb-3">
             <label class="form-label">Mô tả</label>
             <textarea asp-for="Description" class="form-control" placeholder="Nhập ghi chú"></textarea>
@@ -86,7 +87,6 @@
         <a asp-action="Index" class="btn btn-secondary">Hủy</a>
     </form>
 </div>
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

@@ -2,7 +2,7 @@
 @using X.PagedList.Mvc.Core
 
 @{
-    Layout = "~/Views/Shared/_LayoutForUser.cshtml";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 <h2 class="text-danger text-center">Quản lý Lịch Trực</h2>
 @if (TempData["UpdateDutyAccess"] != null)
@@ -30,6 +30,13 @@
 {
     <div id="createAlert" class="alert alert-success alert-dismissible fade show" role="alert">
         @TempData["DaGiaoViec"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["DutySuccess"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["DutySuccess"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
@@ -77,6 +84,7 @@
                 <th>Ca trực</th>
                 <th>Trạng thái</th>
                 <th>Mô tả</th>
+                <th>Hành động</th>
             </tr>
         </thead>
         <tbody class="text-center text-nowrap small">
@@ -90,7 +98,7 @@
                             @(item.DutyDays.HasValue ? item.DutyDays.Value.ToString("dd/MM/yyyy") : "Chưa có ")
                         </td>
                         <td>@(string.IsNullOrEmpty(item.Shift) ? "Chưa có ca trực" : item.Shift)</td>
-                        <td class="@(item.IsOverTime == true ? "text-success":(item.IsOverTime ==false ?"text-warning": "text-black"))">@(item.IsOverTime == true ? "Làm thêm:" : (item.IsOverTime == false ? "Đang đợi duyệt làm thêm" : "Ca thường"))</td>
+                        <td class="@(item.IsOverTime == true ? "text-success":(item.IsOverTime ==false ?"text-black": "text-black"))">@(item.IsOverTime == true ? "Làm thêm:" : (item.IsOverTime == false ? "Ca thường" : "Ca thường"))</td>
                         <td>@(string.IsNullOrEmpty(item.Shift) ? "Chưa có ca trực" : item.Shift)</td>
                         <td class="@(item.Status == true ?"text-success":(item.Status == false ?"text-warning":""))">@(item.Status == true?"Đã duyệt" :(item.Status == false ?"Chưa duyệt" :"Đợi!"))</td>
                         <td class="@(string.IsNullOrEmpty(item.Description) ?"text-danger":"text-black")">@(string.IsNullOrEmpty(item.Description) ? "Không có mô tả" : item.Description)</td>
@@ -98,7 +106,7 @@
                             <a asp-action="EditDutySchedule" asp-route-id="@item.DutyScheduleId">
                                 <img src="~/Icons/edit (1).png" alt="Edit" width="24" height="24" style="vertical-align:middle" />
                             </a>
-                            <a asp-action="DeleteDutySchedule" asp-route-id="@item.DutyScheduleId">
+                            <a asp-action="DeleteDutySchedule" asp-route-id="@item.DutyScheduleId" onclick="return confirm ('Bạn có chắc chắn muốn xoá không?')">
                                 <img src="~/Icons/delete (1).png" alt="Edit" width="24" height="24" style="vertical-align:middle" />
                             </a>
                         </td>
@@ -108,7 +116,7 @@
             else
             {
                 <tr>
-                    <td colspan="6" class="text-danger text-center"> Chưa có dữ liệu</td>
+                    <td colspan="8" class="text-danger text-center"> Chưa có dữ liệu</td>
                 </tr>
             }
         </tbody>
@@ -120,21 +128,21 @@
     <div class="container text-center">
         <nav>
             <ul class="pagination pagination-sm justify-content-center mb-0">
-                @if (Model.HasPreviousPage)
+                @if (Model!= null && Model.HasPreviousPage)
                 {
                     <li class="page-item">
                         <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber - 1 })">«</a>
                     </li>
                 }
 
-                @for (int i = 1; i <= Model.PageCount; i++)
+                @for (int i = 1; i <= Model?.PageCount; i++)
                 {
                     <li class="page-item @(i == Model.PageNumber ? "active" : "")">
                         <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
                     </li>
                 }
 
-                @if (Model.HasNextPage)
+                @if (Model != null && Model.HasNextPage)
                 {
                     <li class="page-item">
                         <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber + 1 })">»</a>

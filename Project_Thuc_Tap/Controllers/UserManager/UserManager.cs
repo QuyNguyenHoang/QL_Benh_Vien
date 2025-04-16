@@ -26,6 +26,9 @@ using Project_Thuc_Tap.Controllers.Roles;
 using Microsoft.AspNetCore.Hosting;
 using X.PagedList;
 using X.PagedList.Extensions;
+using OfficeOpenXml;
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Project_Thuc_Tap.Controllers.UserManager
 {
@@ -44,8 +47,12 @@ namespace Project_Thuc_Tap.Controllers.UserManager
 
         public async Task<IActionResult> User_ViewMain(int page = 1)
         {
-            int pageSize = 5;
-            var users = await _userManager.Users.OrderBy(u => u.Id).ToListAsync();
+            int pageSize = 10;
+            var role = await _roleManager.Roles
+                .ToListAsync();
+            var users = await _userManager.Users
+                .OrderBy(u => u.Id)
+                .ToListAsync();
             var pagedUsers = users.ToPagedList(page, pageSize);
             return View(pagedUsers);
         }
@@ -57,42 +64,70 @@ namespace Project_Thuc_Tap.Controllers.UserManager
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> CreateUser(User model)
+        [HttpPost]
+        public async Task<IActionResult> CreateUser(User model, IFormFile? Picture)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Khởi tạo đối tượng User (ApplicationUser) mới
-            var user = new User
+            try
             {
-                FullName = model.FullName,
-                Sex = model.Sex,
-                Address = model.Address,
-                BirthDate = model.BirthDate,
-                Email = model.Email,
-                UserName = model.Email, // Nên dùng email làm username
-                PhoneNumber = model.PhoneNumber,
-                CreatedDate = DateTime.Now
-            };
+                var user = new User
+                {
+                    FullName = model.FullName,
+                    Sex = model.Sex,
+                    Address = model.Address,
+                    BirthDate = model.BirthDate,
+                    CreatedDate = DateTime.Now,
+                    Email = model.Email,
+                    UserName = model.Email,
+                    PhoneNumber = model.PhoneNumber
 
-            // Tạo user với mật khẩu mặc định
-            var result = await _userManager.CreateAsync(user, "1111111");
+                };
+                // Xử lý ảnh đại diện mới
+                if (Picture != null && Picture.Length > 0)
+                {
+                    // Lấy tên file gốc từ ảnh mới
+                    var fileName = Path.GetFileName(Picture.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
 
-            if (result.Succeeded)
-            {
-                // Gán role nếu có
-                await _userManager.AddToRoleAsync(user, "User");
-                return RedirectToAction("Index");
+                    // Kiểm tra xem file có tồn tại chưa
+                    if (!System.IO.File.Exists(filePath))
+                    {
+                        // Nếu file chưa có -> lưu file mới vào thư mục
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await Picture.CopyToAsync(stream);
+                        }
+                    }
+
+                    // Cập nhật tên ảnh vào User (dù ảnh có cũ hay mới thì cũng gán lại)
+                    user.Picture = fileName;
+                }
+                var result = await _userManager.CreateAsync(user, "User@123");
+
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, "User");
+                    TempData["Success"] = "Tạo người dùng thành công!";
+                    return RedirectToAction("User_ViewMain");
+                }
+
+                // Nếu có lỗi, in ra thông báo
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+                return View(model);
             }
-
-            // Hiển thị lỗi nếu tạo user thất bại
-            foreach (var error in result.Errors)
+            catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                ModelState.AddModelError(string.Empty, $"Có lỗi xảy ra: {ex.Message}");
+                return View(model);
             }
-
-            return View(model);
         }
+
 
 
 
@@ -239,15 +274,15 @@ namespace Project_Thuc_Tap.Controllers.UserManager
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Lỗi khi xóa: {ex.Message}";
-                return View(user);
+                TempData["Error"] = $"Lỗi khi xóa: {ex.Message} (Vui lòng kiểm tra các dữ liệu liên quan đến '{user.FullName}')";
+                return RedirectToAction("User_ViewMain");
             }
         }
 
         [HttpGet("/search")]
         public async Task<IActionResult> Search(DateTime? date, string? filterType, string query, int  page =1)
         {
-            int pageSize = 5;
+            int pageSize = 10;
             var users = _userManager.Users;
 
 
@@ -284,6 +319,106 @@ namespace Project_Thuc_Tap.Controllers.UserManager
             return View("Search", PageList);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ImportUser(IFormFile excelFile)
+        {
+            if (excelFile != null && excelFile.Length > 0)
+            {
+                using (var stream = new MemoryStream())
+                {
+                    excelFile.CopyTo(stream);
+
+                    using (var workbook = new XLWorkbook(stream))
+                    {
+                        var worksheet = workbook.Worksheet(1);
+                        var rows = worksheet.RangeUsed().RowsUsed();
+
+                        var errorList = new List<string>();
+
+                        foreach (var row in rows.Skip(1)) // Bỏ qua dòng tiêu đề
+                        {
+                            try
+                            {
+                                var hoTen = row.Cell(1).GetString();
+
+                                // Kiểm tra ngày tạo
+                                DateTime ngayTao;
+                                try
+                                {
+                                    ngayTao = row.Cell(2).GetDateTime();
+                                }
+                                catch
+                                {
+                                    errorList.Add($"Dòng {row.RowNumber()} - Ngày tạo không đúng định dạng!");
+                                    continue;
+                                }
+
+                                var gioiTinh = row.Cell(3).GetString();
+                                bool? isNam = gioiTinh == "Nam" ? true : gioiTinh == "Nữ" ? false : null;
+
+                                var diaChi = row.Cell(4).GetString();
+                                var ngaySinh = row.Cell(5).GetDateTime();
+                                var hinhAnh = row.Cell(6).GetString();
+                                var email = row.Cell(7).GetString();
+                                var sodienThoai = row.Cell(8).GetString();
+
+                                // Kiểm tra trùng email
+                                var existedUser = await _userManager.FindByEmailAsync(email);
+                                if (existedUser != null)
+                                {
+                                    errorList.Add($"Dòng {row.RowNumber()} - Email '{email}' đã tồn tại trong hệ thống!");
+                                    continue;
+                                }
+
+                                var us = new User()
+                                {
+                                    FullName = hoTen,
+                                    CreatedDate = ngayTao,
+                                    Sex = isNam,
+                                    Address = diaChi,
+                                    BirthDate = ngaySinh,
+                                    Picture = hinhAnh,
+                                    UserName = email,
+                                    Email = email,
+                                    PhoneNumber = sodienThoai
+                                };
+
+                                var result = await _userManager.CreateAsync(us, "User@123");
+
+                                if (result.Succeeded)
+                                {
+                                    await _userManager.AddToRoleAsync(us, "User");
+                                }
+                                else
+                                {
+                                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                                    errorList.Add($"Dòng {row.RowNumber()} - Lỗi: {errors}");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                errorList.Add($"Dòng {row.RowNumber()} - Lỗi khi import: {ex.Message}");
+                            }
+                        }
+
+                        if (errorList.Any())
+                        {
+                            TempData["ImportFail"] = "Import không thành công cho một số dòng:\n" + string.Join("\n", errorList);
+                        }
+                        else
+                        {
+                            TempData["ImportSuccess"] = "Import danh sách người dùng thành công!";
+                        }
+
+                        return RedirectToAction("User_ViewMain");
+                    }
+                }
+            }
+            //Xem list lỗi 
+            
+            TempData["ImportFail"] = "Vui lòng chọn file Excel hợp lệ.";
+            return RedirectToAction("User_ViewMain");
+        }
 
     }
 

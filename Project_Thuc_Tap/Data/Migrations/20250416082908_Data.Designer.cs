@@ -12,8 +12,8 @@ using Project_Thuc_Tap.Data;
 namespace Project_Thuc_Tap.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250410084542_Data5")]
-    partial class Data5
+    [Migration("20250416082908_Data")]
+    partial class Data
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,12 +168,6 @@ namespace Project_Thuc_Tap.Data.Migrations
 
                     b.Property<DateTime?>("CompensatoryDays")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("OverTimeDays")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OverTimeHours")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Shift")
                         .HasColumnType("nvarchar(max)");

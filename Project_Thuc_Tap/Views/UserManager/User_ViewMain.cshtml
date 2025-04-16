@@ -26,8 +26,27 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
-
-
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["error"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if(TempData["ImportFail"]!=null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ImportFail"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ImportSuccess"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["ImportSuccess"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <div class="reposive min-vh-100">
     <form action="/search" method="get">
         <div class="d-flex align-items-center justify-content-center my-4 w-100 gap-2 flex-nowrap">
@@ -58,7 +77,12 @@
 
         </div>
     </form>
-    <table class="table table-striped table-bordered table-sm">
+    <div class="d-flex justify-content-end mb-2">
+        <a asp-action="CreateUser">
+            <img src="~/Icons/plus.png" width="24" height="24"/>
+        </a>
+    </div>
+    <table class="table table-striped table-bordered table-sm table-hover">
         <thead class="text-center text-nowrap small bg-light">
             <tr>
                 <th>Họ và tên</th>
@@ -74,14 +98,14 @@
 
             </tr>
         </thead>
-        <tbody class="text-center text-nowrap small">
+        <tbody class="text-center  small">
             @{
                 int stt = (Model.PageNumber - 1) * Model.PageSize;
             }
             @foreach (var user in Model)
             {
-                <tr>
-                    <td>@user.FullName</td>
+                <tr class="@(user.Email == "Admin@gmail.com" ? "bg-primary":"")">
+                    <td >@user.FullName</td>
                     <td>@user.CreatedDate</td>
                     <td>@(user.Sex.HasValue ? (user.Sex.Value ? "Nam" : "Nữ") : "Chưa xác định")</td>
                     <td>@user.Address</td>

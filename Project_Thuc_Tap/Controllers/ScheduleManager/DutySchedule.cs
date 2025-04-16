@@ -61,8 +61,8 @@ namespace Project_Thuc_Tap.Controllers.ScheduleManager
                 }
             }
 
-            var PageList =  queryable.OrderBy(l => l.DutyDays).ToPagedList(page, pageSize);
-            return View(PageList);
+            var  PageList =  queryable.OrderBy(l => l.DutyDays).ToPagedList(page, pageSize);
+            return await Task.FromResult(View(PageList));
         }
 
         public async Task<IActionResult> DutySchedule(DateTime? selectedDate)
@@ -274,12 +274,63 @@ namespace Project_Thuc_Tap.Controllers.ScheduleManager
             // Nếu model không hợp lệ, trả lại form để sửa
             return View(dutySchedule);
         }
+        public async Task<IActionResult>Auto(DateTime? FromDate , DateTime? ToDate)
+        {
+            var listUser = await _userManager.Users
+                .Where(u=>u.Email !="Admin@gmail.com")
+                .ToListAsync();
+            if (!FromDate.HasValue || !ToDate.HasValue)
+            {
+                TempData["Error"] = "Vui lòng chọn đầy đủ ngày!";
+                return RedirectToAction("CreateDutySchedule");
+            }
+            if(FromDate < DateTime.Now)
+            {
+                TempData["FromDateInvalid"] = "Ngày bắt đầu không thể trong quá khứ !";
+                return RedirectToAction("CreateDutySchedule");
+            }
+            if (ToDate < DateTime.Now)
+            {
+                TempData["ToDateInvalid"] = "Ngày kết thúc không thể trong quá khứ !";
+                return RedirectToAction("CreateDutySchedule");
+            }
+            var ngayBatDau = FromDate.Value;
+            var ngayKetThuc = ToDate.Value;
 
+            // Lấy tất cả các ngày từ FromDate đến ToDate, bỏ qua Chủ Nhật
+            var danhSachNgayTruc = Enumerable.Range(0, (ngayKetThuc - ngayBatDau).Days + 1)
+                .Select(offset => ngayBatDau.AddDays(offset))
+                .Where(date => date.DayOfWeek != DayOfWeek.Sunday)
+                .ToList();
 
+            // Bắt đầu gán ca trực theo danh sách ngày và user
+            string[] caTrongNgay = { "Sáng", "Chiều", "Tối" };
+            int userIndex = 0;
 
+            foreach (var ngay in danhSachNgayTruc)
+            {
+                foreach (var ca in caTrongNgay)
+                {
+                    var user = listUser[userIndex % listUser.Count];
 
+                    _context.DutySchedule.Add(new DutySchedule
+                    {
+                        UserId = user.Id,
+                        DutyDays = ngay,
+                        Shift = ca,
+                        Status = true,
+                        IsOverTime = false,
+                        Description = "Tự động"
+                    });
 
+                    userIndex++;
+                }
+            }
 
+            await _context.SaveChangesAsync();
 
+            TempData["DutySuccess"] = "Đã sắp xếp ca trực tự động (không tính Chủ Nhật)";
+            return RedirectToAction("Index");
+        }
     }
 }

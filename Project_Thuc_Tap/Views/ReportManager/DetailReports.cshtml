@@ -1,4 +1,5 @@
-﻿@model List<Project_Thuc_Tap.Models.DetailReports>
+﻿@model X.PagedList.PagedList<DetailReports>
+@using X.PagedList.Mvc.Core;
 
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
@@ -6,7 +7,44 @@
 
 <h2 class="text-danger text-center my-4">CHI TIẾT THỐNG KÊ</h2>
 
-<div class="table-responsive">
+<div class="row align-items-end mt-5 justify-content-end gx-2 mb-3">
+    <!-- Form xuất Excel -->
+    @if (Model != null && Model.Any())
+    {
+        var userId = Model.First().UserId;
+        <div class="col-auto">
+            <form asp-controller="ReportManager" asp-action="ExportToExcel"
+                  asp-route-id="@userId" method="post" class="d-flex align-items-end">
+                <input type="hidden" name="toDate" value="@Context.Request.Query["ToDate"]" />
+                <input type="hidden" name="fromDate" value="@Context.Request.Query["FromDate"]" />
+                <button type="submit" class="btn btn-success d-flex align-items-center">
+                    <span class="me-2">Xuất File Excel</span>
+                    <img src="~/Icons/excel.png" width="24" height="24" />
+                </button>
+            </form>
+        </div>
+    }
+    <!-- Form lọc dữ liệu -->
+    <div class="col-auto">
+        <form method="get" asp-action="DetailReports" class="d-flex align-items-end">
+            <div class="me-2">
+                <label for="fromDate" class="form-label fw-semibold">Từ ngày:</label>
+                <input type="date" name="fromDate" id="FromDate" class="form-control"
+                       value="@Context.Request.Query["FromDate"]" />
+            </div>
+            <div class="me-2">
+                <label for="toDate" class="form-label fw-semibold">Đến ngày:</label>
+                <input type="date" name="toDate" id="ToDate" class="form-control"
+                       value="@Context.Request.Query["ToDate"]" />
+            </div>
+            <button type="submit" class="btn btn-outline-secondary h-50 align-self-end">
+                <img src="~/Icons/find.png" alt="Reload" width="24" height="24" />
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive min-vh-100">
     <table class="table table-bordered table-sm align-middle">
         <thead class="table-light text-center text-nowrap small">
             <tr>
@@ -23,21 +61,61 @@
             </tr>
         </thead>
         <tbody class="text-nowrap small text-center">
-            @foreach (var item in Model)
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                   
+                    <tr class="@(item.WorkingDay == DateTime.Now.Date ?"bg-primary":"")">
+                        <td>@item.FullName</td>
+                        <td>@item.BirthDate?.ToString("dd/MM/yyyy")</td>
+                        <td>@item.Room</td>
+                        <td>@item.Department</td>
+                        <td>@item.WorkingDay?.ToString("dd/MM/yyyy")</td>
+                        <td>@item.TotalWorkHours Giờ</td>
+                        <td>@item.TotalOverTime Giờ</td>
+                        <td>@item.TotalCompensatoryLeave Ngày</td>
+                        <td>@item.TotalLate Giờ</td>
+                        <td>@item.Notes</td>
+                    </tr>
+                 
+                }
+            }
+            else
             {
                 <tr>
-                    <td>@item.FullName</td>
-                    <td>@item.BirthDate?.ToString("dd/MM/yyyy")</td>
-                    <td>@item.Room</td>
-                    <td>@item.Department</td>
-                    <td>@item.WorkingDay?.ToString("dd/MM/yyyy")</td>
-                    <td>@item.TotalWorkHours Giờ</td>
-                    <td>@item.TotalOverTime Giờ</td>
-                    <td>@item.TotalCompensatoryLeave Ngày</td>
-                    <td>@item.TotalLate Giờ</td>
-                    <td>@item.Notes</td>
+                    <td colspan="11" class="text-danger text-center"></td>
                 </tr>
+
             }
         </tbody>
     </table>
 </div>
+<footer class=" py-3 mt-auto">
+    <div class="container text-center">
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber - 1 })">«</a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model.PageCount; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber + 1 })">»</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</footer>

@@ -61,10 +61,12 @@ var app = builder.Build();
 
 //Code liên quan tới phân quyền
 //Sau khi chay lan dau comment lai
+
 //using (var scope = app.Services.CreateScope())
 //{
 //    await DataSeed.DuLieuMau(scope.ServiceProvider);
 //}
+
 //=====================================================
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

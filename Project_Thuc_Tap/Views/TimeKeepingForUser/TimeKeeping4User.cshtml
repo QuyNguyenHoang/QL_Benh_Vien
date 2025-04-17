@@ -2,9 +2,13 @@
 @model Project_Thuc_Tap.Models.TimeKeeping
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
-<h2 class="mb-3 text-danger text-center">Chấm công</h2>
-<div class="form-control">
-    <form asp-action="TimeKeeping4User" method="post">
+@{
+    Layout = "~/Views/Shared/_LayoutForUser.cshtml";
+}
+<h2 class="mb-3 text-danger text-center my-3">Chấm công</h2>
+
+<main class="responsive row justify-content-center">
+    <form asp-action="TimeKeeping4User" method="post" class="col-4 border bg-white rounded-3">
 
         @if (!ViewData.ModelState.IsValid)
         {
@@ -82,11 +86,15 @@
             <textarea asp-for="Description" class="form-control" placeholder="Nhập ghi chú"></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
-
-        <button type="submit" class="btn btn-primary">Chấm công</button>
-        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+        <div class=" d-flex justify-content-end my-2">
+            <button type="submit" class="btn btn-primary">Chấm công</button>
+            <a asp-action="Index" class="btn btn-danger ms-1 ">Hủy</a>
+        </div>
+        
     </form>
-</div>
+</main>
+   
+</>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

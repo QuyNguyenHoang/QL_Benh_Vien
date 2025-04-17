@@ -1,0 +1,98 @@
+﻿@model X.PagedList.PagedList<Room>
+@using X.PagedList.Mvc.Core
+@{
+    Layout = "~/Views/Shared/_LayoutForUser.cshtml";
+}
+@if (TempData["UpdateRoom"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["UpdateRoom"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["DeleteYes"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["DeleteYes"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["CreateYes"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["CreateYes"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<main class="container my-4">
+    <h2 class="text-danger text-center mb-4">Danh sách Phòng</h2>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-controller="RoomManager" asp-action="CreateRooms">
+            <img src="~/Icons/plus.png" width="32" height="32" />
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-sm">
+                    <thead class="text-center bg-light text-nowrap small fw-bold">
+                        <tr>
+                            <th>Tên phòng</th>
+                            <th>Mô tả</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center text-black text-nowrap small">
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.RoomName</td>
+                                <td>@item.Description</td>
+                                <td>
+                                    <a asp-action="EditRooms" asp-route-id="@item.RoomId" class="me-2">
+                                        <img src="~/Icons/edit (1).png" width="24" height="24" />
+                                    </a>
+                                    <a asp-action="DeleteRooms" asp-route-id="@item.RoomId" onclick="return confirm('Bạn có chắc muốn xoá @item.RoomName?')">
+                                        <img src="~/Icons/delete (1).png" width="24" height="24" />
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class=" py-3 mt-auto">
+    <div class="container text-center">
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber - 1 })">«</a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model.PageCount; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = Model.PageNumber + 1 })">»</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</footer>

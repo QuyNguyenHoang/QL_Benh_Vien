@@ -1,0 +1,40 @@
+﻿@model Project_Thuc_Tap.Models.Room
+
+@if (TempData["NotCreate"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["NotCreate"]
+        <button class="btn-close" data-bs-dismis="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Name"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Name"]
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<main class="container my-4 min-vh-100">
+    <h2 class="text-center text-danger my-4">Thêm Phòng</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <form asp-controller="RoomManager" asp-action="CreateRooms" method="post" class="border p-4 bg-light rounded-3 shadow-sm">
+                <div class="form-group mb-3">
+                    <label class="form-label">Tên phòng</label>
+                    <input asp-for="RoomName" class="form-control" placeholder="Nhập tên phòng..." />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Mô tả</label>
+                    <textarea asp-for="Description" class="form-control" placeholder="Nhập mô tả nếu có..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-primary me-2">Thêm</button>
+                    <a asp-action="Room_ViewMain" class="btn btn-danger">Huỷ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

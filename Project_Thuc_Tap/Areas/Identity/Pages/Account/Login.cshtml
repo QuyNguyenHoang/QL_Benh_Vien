@@ -5,94 +5,93 @@
 }
 
 <h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <h2 class="text-danger text-center">ĐĂNG NHẬP</h2>
-                <hr />
+<main class="bg-img">
+    <style>
+        .bg-img {
+            background-image: url('/Images/bg-1.jpg'); /* đường dẫn hình ảnh */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+           
+        }
+    </style>
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <section class="min-vh-100 d-flex align-items-center">
+            <form id="account" method="post" class="p-4 shadow-sm bg-light rounded-3 w-100">
+                <h2 class="text-danger text-center mb-4">ĐĂNG NHẬP</h2>
+
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                <div class="form-group">
-                    <label class="form-label mb-1 d-flex align-items-center">
-                        Địa chỉ Email
-                        <img src="~/Icons/gmail.png" width="24" height="24" class="ms-1" />
-                    </label>
-                    <input class="form-control mb-1" asp-for="Input.Email" placeholder="Nhập email" />
+
+                
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-white">
+                        <img src="~/Icons/profile-user.png" width="20" height="20" alt="Email" />
+                    </span>
+                    <input type="email" class="form-control" asp-for="Input.Email" placeholder="Enter your Email" />
                 </div>
-                <div class="form-group mb-2">
-                    <label class="form-label mb-1 d-flex align-items-center">
-                        Mật khẩu
-                        <img src="~/Icons/reset-password.png" width="24" height="24" class="ms-1" />
-                    </label>
-                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Nhập mật khẩu" />
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+
+                
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-white">
+                        <img src="~/Icons/lock.png" width="20" height="20" alt="Password" />
+                    </span>
+                    <input asp-for="Input.Password" class="form-control" placeholder="Enter your Password" autocomplete="new-password" aria-required="true" />
                 </div>
-                <div class="checkbox mb-3">
-                    <label asp-for="Input.RememberMe" class="form-label">
+                <span asp-validation-for="Input.Password" class="text-danger d-block mb-3"></span>
+
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
                         <input class="form-check-input" asp-for="Input.RememberMe" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
-                </div>
-                <div class="d-flex ">
-                    <button id="login-submit" type="submit" class="w-50 btn btn-lg btn-primary">Log in</button>
-
-                    <button type="button" class="d-flex text-light btn btn-danger w-50 align-items-center ms-2" onclick="goBack()">
-                        Huỷ
-                        <img src="~/Icons/cancelled.png" alt="Hủy" width="24" height="24" style="vertical-align: middle; margin-left: 10px;" />
-                    </button>
+                        <label class="form-check-label fs-6 fst-italic" asp-for="Input.RememberMe">
+                            @Html.DisplayNameFor(m => m.Input.RememberMe)
+                        </label>
+                    </div>
+                    <a id="forgot-password" asp-page="./ForgotPassword" class="btn btn-link text-decoration-none fst-italic fs-6">
+                        Forgot Password?
+                    </a>
                 </div>
 
-                <script>
-                    function goBack() {
-                        window.history.back(); // Trở lại trang trước
-                    }
-                </script>
+                
+                <div class="d-grid mb-3">
+                    <button id="login-submit" type="submit" class="btn btn-primary btn-md">Log in</button>
+                </div>
 
-                <div>
-                    <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+                
+                <div class="text-center mb-3">
+                    <p class="my-2">— Or —</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#" class="text-decoration-none">
+                            <img src="~/Icons/facebook.png" width="30" height="30" class="rounded-circle" alt="Facebook" />
+                        </a>
+                        <a href="#" class="text-decoration-none">
+                            <img src="~/Icons/google.png" width="30" height="30" class="rounded-circle" alt="Google" />
+                        </a>
+                        <a href="#" class="text-decoration-none">
+                            <img src="~/Icons/instagram.png" width="30" height="30" class="rounded-circle" alt="Instagram" />
+                        </a>
+                    </div>
+                </div>
+
+
+                <div class="d-flex justify-content-center">
+                    <p class="mb-0">
+                        No account?
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl"
+                           class="btn btn-link text-decoration-none fst-italic fs-6 p-0 mb-1">
+                            Register
+                        </a>
                     </p>
                 </div>
+
+
             </form>
         </section>
     </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
-                }
-            }
-        </section>
-    </div>
 </div>
+</main>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

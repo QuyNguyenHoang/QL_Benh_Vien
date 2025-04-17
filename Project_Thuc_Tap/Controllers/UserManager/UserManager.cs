@@ -51,6 +51,7 @@ namespace Project_Thuc_Tap.Controllers.UserManager
             var role = await _roleManager.Roles
                 .ToListAsync();
             var users = await _userManager.Users
+                .Include(u=>u.Room)
                 .OrderBy(u => u.Id)
                 .ToListAsync();
             var pagedUsers = users.ToPagedList(page, pageSize);
@@ -59,7 +60,12 @@ namespace Project_Thuc_Tap.Controllers.UserManager
         [HttpGet]
         public async Task<IActionResult> CreateUser()
         {
-            var listRoom = await _context.Room.ToListAsync();
+            var listRoom = await _context.Room
+                .Select(r => new {
+                    r.RoomName,
+                    r.RoomId,
+                    })
+                .ToListAsync();
             ViewBag.Room = listRoom;
             return View();
         }
@@ -81,6 +87,7 @@ namespace Project_Thuc_Tap.Controllers.UserManager
                     CreatedDate = DateTime.Now,
                     Email = model.Email,
                     UserName = model.Email,
+                    RoomId = model.RoomId,
                     PhoneNumber = model.PhoneNumber
 
                 };
@@ -149,7 +156,13 @@ namespace Project_Thuc_Tap.Controllers.UserManager
             {
                 return NotFound("Không tìm thấy người dùng!");
             }
-
+            var listRoom = await _context.Room
+                .Select(l => new {
+                    l.RoomId,
+                    l.RoomName,
+                })
+                .ToListAsync();
+            ViewBag.RoomUpdate = listRoom;
             return View(user);
         }
         [HttpPost]
@@ -171,6 +184,7 @@ namespace Project_Thuc_Tap.Controllers.UserManager
                 user.Email = model.Email;
                 user.UserName = model.UserName;
                 user.PhoneNumber = model.PhoneNumber;
+                user.RoomId = model.RoomId;
 
 
                 // Xử lý ảnh đại diện mới
@@ -283,7 +297,7 @@ namespace Project_Thuc_Tap.Controllers.UserManager
         public async Task<IActionResult> Search(DateTime? date, string? filterType, string query, int  page =1)
         {
             int pageSize = 10;
-            var users = _userManager.Users;
+            var users = _userManager.Users.Include(t=>t.Room).AsQueryable();
 
 
             if (date.HasValue)
@@ -298,7 +312,7 @@ namespace Project_Thuc_Tap.Controllers.UserManager
                         users = users.Where(nv => nv.FullName != null && nv.FullName.Contains(query));
                         break;
                     case "phong":
-                        users = users.Where(nv => nv.RoomId.HasValue && nv.RoomId.Value.ToString().Contains(query));
+                        users = users.Where(nv => nv.Room.RoomName != null && nv.Room.RoomName.ToString().Contains(query));
                         break;
                     case "khoa":
                         users = users.Where(nv => nv.RoomId.HasValue && nv.RoomId.Value.ToString().Contains(query));

@@ -91,6 +91,7 @@
                 <th>Địa chỉ</th>
                 <th>Ngày sinh</th>
                 <th>Hình ảnh</th>
+                <th>Phòng</th>
                 <th>Tên đăng nhập</th>
                 <th>Email</th>
                 <th>Số điện thoại</th>
@@ -128,6 +129,7 @@
                                  style="border-radius: 50%; object-fit: cover;" />
                         }
                     </td>
+                    <td class="@(string.IsNullOrEmpty(user.Room?.RoomName)?"text-danger":"")">@(string.IsNullOrEmpty(user.Room?.RoomName) ? "Chưa có phòng" : user.Room.RoomName)</td>
                     <td>@user.UserName</td>
                     <td>@user.Email</td>
                     <td>@user.PhoneNumber</td>

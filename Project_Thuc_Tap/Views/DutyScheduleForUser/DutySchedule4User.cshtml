@@ -1,133 +1,128 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutForUser.cshtml";
 }
+
 <div class="container mt-4">
-    <h2 class="mb-3">Quản lý lịch trực theo tuần</h2>
+    <h2 class="mb-3 text-center text-danger">Quản lý lịch trực theo tuần</h2>
 
     <!-- Bộ lọc chọn tuần -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <button class="btn btn-primary" id="prevWeek">&#60; Tuần trước</button>
-            <button class="btn btn-primary" id="currentWeek">Tuần hiện tại</button>
-            <button class="btn btn-primary" id="nextWeek">Tuần tới &#62;</button>
+        <div class="btn-group">
+            <button class="btn btn-primary rounded-3" id="prevWeek">&#60; Tuần trước</button>
+            <button class="btn btn-primary  rounded-3 mx-1" id="currentWeek">Tuần hiện tại</button>
+            <button class="btn btn-primary rounded-3" id="nextWeek">Tuần tới &#62;</button>
         </div>
         <input type="date" class="form-control w-25" id="datePicker" value="@ViewBag.SelectedDate">
-
     </div>
+
     <!-- Bảng lịch trực chi tiết theo ngày -->
-    <table class="table table-bordered text-center align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Ca trực</th>
-                <th id="day1"></th>
-                <th id="day2"></th>
-                <th id="day3"></th>
-                <th id="day4">T</th>
-                <th id="day5"></th>
-                <th id="day6"></th>
-                <th id="day7" style="color:red"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var shift in new[] { "Sáng", "Chiều", "Tối" })
-            {
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped text-center align-middle">
+            <thead class="table-light">
                 <tr>
-                    <td class="bg-warning fw-bold">@shift</td>
-
-                    @for (int i = 0; i < 7; i++)
-                    {
-                        var currentDate = ViewBag.StartOfWeek.AddDays(i).Date;
-                        var key = $"{currentDate:yyyy-MM-dd}_{shift}";
-                        bool hasCompensatory = ViewBag.Compensatory.ContainsKey(key);
-
-                        <td style="vertical-align: top;">
-                            <div class="d-flex flex-column align-items-center gap-2">
-
-                                @if (ViewBag.GroupedSchedules.ContainsKey(key))
-                                {
-                                    // Hiển thị ca trực
-                                    @foreach (var employee in ViewBag.GroupedSchedules[key])
-                                    {
-                                        
-
-                                        <div class="card p-2 text-center shadow-sm rounded employee-card"
-                                             style="width: 150px; cursor: pointer;"
-                                             data-name="@employee.FullName"
-                                             data-phone="@employee.Phone"
-                                             data-avatar="@(string.IsNullOrEmpty(employee.Picture) ? "/Images/avatar-default.png" : $"/Images/{employee.Picture}")"
-                                             onclick="showDetails(this)">
-
-                                            <div class="d-flex justify-content-center mb-1">
-                                                <img src="@(string.IsNullOrEmpty(employee.Picture) ? "/Images/avatar-default.png" : $"/Images/{employee.Picture}")"
-                                                     alt="Avatar của @employee.FullName"
-                                                     class="rounded-circle"
-                                                     style="width: 50px; height: 50px; object-fit: cover;">
-                                            </div>
-                                            <h6 class="fw-bold mb-1 text-primary">@employee.FullName</h6>
-                                            <p class="text-muted">Ghi chú: @employee.Description</p>
-
-                                            @if (hasCompensatory)
-                                            {
-                                                <span class="badge bg-danger">🔹Có nghỉ bù</span>
-                                            }
-
-                                            @if (employee.Status == false)
-                                            {
-                                                    <span class="badge bg-danger">Tạm ngưng</span>
-                                            }
-
-                                            @if (employee.IsOverTime == true)
-                                            {
-                                                <span class=" badge bg-success">Làm thêm</span>
-                                            }
-                                            @if (employee.IsOverTime == null)
-                                            {
-                                                <span class="bg-warning">Đang đợi duyệt làm thêm</span>
-                                            }
-                                        </div>
-                                    }
-
-                                }
-                                else if (hasCompensatory)
-                                {
-                                    // Nếu chỉ có nghỉ bù (không có ca trực), hiển thị bình thường
-                                    @foreach (var leave in ViewBag.Compensatory[key])
-                                    {
-                                        <div class="card p-2 text-center shadow-sm rounded employee-card"
-                                             style="width: 150px; cursor: pointer; background-color: #ffebcc;"
-                                             data-name="@leave.FullName"
-                                             data-phone="@leave.Phone"
-                                             data-avatar="@leave.Picture"
-                                             onclick="showDetails(this)">
-
-                                            <div class="d-flex justify-content-center mb-1">
-                                                <img src="@(string.IsNullOrEmpty(leave.Picture) ? "/Images/avatar-default.png" : $"/Images/{leave.Picture}")"
-                                                     alt="Avatar của @leave.FullName"
-                                                     class="rounded-circle"
-                                                     style="width: 50px; height: 50px; object-fit: cover;">
-                                            </div>
-                                            <h6 class="fw-bold mb-1 text-danger">@leave.FullName</h6>
-                                            <p class="text-muted">Nghỉ bù</p>
-                                        </div>
-                                    }
-                                }
-                                else
-                                {
-                                    <div class="text-center text-muted" style="height: 50px; display: flex; align-items: center; justify-content: center;">
-                                        Không có dữ liệu
-                                    </div>
-                                }
-
-                            </div>
-                        </td>
-                    }
+                    <th>Ca trực</th>
+                    <th id="day1"></th>
+                    <th id="day2"></th>
+                    <th id="day3"></th>
+                    <th id="day4">T</th>
+                    <th id="day5"></th>
+                    <th id="day6"></th>
+                    <th id="day7" style="color:red"></th>
                 </tr>
-            }
-        </tbody>
+            </thead>
+            <tbody>
+                @foreach (var shift in new[] { "Sáng", "Chiều", "Tối" })
+                {
+                    <tr>
+                        <td class="bg-warning fw-bold">@shift</td>
 
-    </table>
+                        @for (int i = 0; i < 7; i++)
+                        {
+                            var currentDate = ViewBag.StartOfWeek.AddDays(i).Date;
+                            var key = $"{currentDate:yyyy-MM-dd}_{shift}";
+                            bool hasCompensatory = ViewBag.Compensatory.ContainsKey(key);
 
+                            <td style="vertical-align: top;">
+                                <div class="d-flex flex-column align-items-center gap-2">
 
+                                    @if (ViewBag.GroupedSchedules.ContainsKey(key))
+                                    {
+                                        // Hiển thị ca trực
+                                        @foreach (var employee in ViewBag.GroupedSchedules[key])
+                                        {
+                                            <div class="card p-2 text-center shadow-sm rounded employee-card"
+                                                 style="width: 150px; cursor: pointer;"
+                                                 data-name="@employee.FullName"
+                                                 data-phone="@employee.Phone"
+                                                 data-avatar="@(string.IsNullOrEmpty(employee.Picture) ? "/Images/avatar-default.png" : $"/Images/{employee.Picture}")"
+                                                 onclick="showDetails(this)">
+                                                <div class="d-flex justify-content-center mb-1">
+                                                    <img src="@(string.IsNullOrEmpty(employee.Picture) ? "/Images/avatar-default.png" : $"/Images/{employee.Picture}")"
+                                                         alt="Avatar của @employee.FullName"
+                                                         class="rounded-circle"
+                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                </div>
+                                                <h6 class="fw-bold mb-1 text-primary">@employee.FullName</h6>
+                                                <p class="text-muted">Ghi chú: @employee.Description</p>
+
+                                                @if (hasCompensatory)
+                                                {
+                                                    <span class="badge bg-danger">🔹Có nghỉ bù</span>
+                                                }
+
+                                                @if (employee.Status == false)
+                                                {
+                                                    <span class="badge bg-danger">Tạm ngưng</span>
+                                                }
+
+                                                @if (employee.IsOverTime == true)
+                                                {
+                                                    <span class=" badge bg-success">Làm thêm</span>
+                                                }
+                                                @if (employee.IsOverTime == null)
+                                                {
+                                                    <span class="bg-warning">Đang đợi duyệt làm thêm</span>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                    else if (hasCompensatory)
+                                    {
+                                        // Nếu chỉ có nghỉ bù (không có ca trực), hiển thị bình thường
+                                        @foreach (var leave in ViewBag.Compensatory[key])
+                                        {
+                                            <div class="card p-2 text-center shadow-sm rounded employee-card"
+                                                 style="width: 150px; cursor: pointer; background-color: #ffebcc;"
+                                                 data-name="@leave.FullName"
+                                                 data-phone="@leave.Phone"
+                                                 data-avatar="@leave.Picture"
+                                                 onclick="showDetails(this)">
+                                                <div class="d-flex justify-content-center mb-1">
+                                                    <img src="@(string.IsNullOrEmpty(leave.Picture) ? "/Images/avatar-default.png" : $"/Images/{leave.Picture}")"
+                                                         alt="Avatar của @leave.FullName"
+                                                         class="rounded-circle"
+                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                </div>
+                                                <h6 class="fw-bold mb-1 text-danger">@leave.FullName</h6>
+                                                <p class="text-muted">Nghỉ bù</p>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center text-muted" style="height: 50px; display: flex; align-items: center; justify-content: center;">
+                                            Không có dữ liệu
+                                        </div>
+                                    }
+
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
     <!-- Ghi chú màu sắc -->
     <div class="mt-3">
@@ -158,8 +153,6 @@
             dayCell.innerHTML = `${dayName}<br>${date.toLocaleDateString('vi-VN')}`;
         }
     }
-
-
 
     datePicker.addEventListener('change', () => {
         const selectedDate = datePicker.value;
@@ -195,53 +188,3 @@
     updateWeekDisplay(startOfWeek);
 
 </script>
-
-<style>
-    .container {
-        max-width: 1200px;
-        margin: auto;
-        background: #f9f9f9;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    }
-
-    h2 {
-        color: #4a4a4a;
-        text-align: center;
-        font-weight: bold;
-    }
-
-    table th, table td {
-        vertical-align: middle;
-        font-size: 16px;
-        padding: 10px;
-    }
-
-    .bg-warning {
-        background-color: #fff8c6 !important;
-    }
-
-    .bg-danger {
-        background-color: #e74c3c !important;
-    }
-
-    .bg-success {
-        background-color: #2ecc71 !important;
-    }
-
-    .bg-info {
-        background-color: #3498db !important;
-    }
-
-    .badge {
-        padding: 8px 12px;
-        margin-right: 5px;
-        font-size: 14px;
-    }
-
-    button.btn-sm {
-        margin-left: 5px;
-        font-size: 0.9rem;
-    }
-</style>

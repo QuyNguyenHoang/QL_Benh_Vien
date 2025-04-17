@@ -6,47 +6,93 @@
     Layout = "~/Views/Shared/_LayoutForUser.cshtml";
 }
 
-<div class="container mt-5">
-    <div class="row align-items-center">
+<div class="container mt-5 responsive min-vh-100">
+    <!-- User Info Section -->
+    <div class="row align-items-center mb-4">
         <div class="col-md-4 text-center">
             @if (SignInManager.IsSignedIn(User))
             {
                 var user = await UserManager.GetUserAsync(User);
                 <img src="@(string.IsNullOrEmpty(user.Picture) ? "/Images/avatar-default.png" : $"/Images/{user.Picture}")"
-                     class="rounded-circle img-thumbnail shadow" width="120" height="120" alt="User Image" />
-                <h4 class="mt-3 fw-bold text-dark">Hello, @user?.FullName</h4>
+                     class="rounded-circle img-thumbnail shadow-lg border border-light" width="150" height="150" alt="User Image" />
+                <h4 class="mt-3 fw-bold text-dark">Chào, @user?.FullName</h4>
             }
         </div>
         <div class="col-md-8">
             <h2 class="text-primary fw-bold">Chào mừng bạn đến với hệ thống quản lý lịch trực và chấm công.</h2>
-            <p class="text-muted">Quản lý ca trực dễ dàng, chấm công chính xác và theo dõi lịch làm việc hiệu quả.</p>
+            <p class="text-muted">Giúp bạn quản lý ca trực, chấm công chính xác và theo dõi lịch làm việc hiệu quả một cách dễ dàng.</p>
         </div>
     </div>
 
+    <!-- Stats Cards Section -->
     <div class="row mt-5">
-        <div class="col-md-4">
-            <div class="card text-center shadow-lg border-0">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold">Số ca trực</h5>
-                    <p class="fs-2 text-primary fw-bold">5</p>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0 rounded hover-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold text-uppercase text-primary">Số ca trực (Hôm nay) </h5>
+                    <p class="fs-2 text-primary fw-bold">@ViewBag.DutyToDay</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-center shadow-lg border-0">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold">Số ngày đã chấm công</h5>
-                    <p class="fs-2 text-success fw-bold">3</p>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0 rounded hover-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold text-uppercase text-success">Chấm công hôm nay</h5>
+                    <p class="fs-2 text-success fw-bold">
+                        @if (ViewBag.TimeMessages != null)
+                        {
+                            foreach (var msg in ViewBag.TimeMessages as List<string>)
+                            {
+                                <div class="alert alert-success">@msg</div>
+                            }
+                        }
+
+                        @if (ViewBag.TimeOutMessages != null)
+                        {
+                            foreach (var msg in ViewBag.TimeOutMessages as List<string>)
+                            {
+                                <div class="alert alert-warning">@msg</div>
+                            }
+                        }
+
+                        @if (ViewBag.TimeLateMessages != null)
+                        {
+                            foreach (var msg in ViewBag.TimeLateMessages as List<string>)
+                            {
+                                <div class="alert alert-danger">@msg</div>
+                            }
+                        }
+
+                        @if (ViewBag.TimeKeepingNull != null)
+                        {
+                            <div class="alert alert-secondary">@ViewBag.TimeKeepingNull</div>
+                        }
+
+
+
+                    </p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-center shadow-lg border-0">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold">Số ca đổi</h5>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0 rounded hover-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold text-uppercase text-warning">Số ca đổi</h5>
                     <p class="fs-2 text-warning fw-bold">1</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Add CSS for hover effect -->
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+</style>
